@@ -4,7 +4,7 @@ The purpose of this package is to provide OpenVR XR SDK Support. This package pr
 
 # Documentation
 
-There is some brief documentation included with this plugin at /Documentation~/com.valve.openvr.md
+There is some brief documentation included with this plugin at /Documentation~/com.valvesoftware.openvr.md
 
 # Input choice
 

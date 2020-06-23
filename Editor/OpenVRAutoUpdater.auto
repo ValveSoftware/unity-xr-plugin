@@ -11,10 +11,10 @@ namespace Unity.XR.OpenVR
     [InitializeOnLoad]
     public class OpenVRAutoUpdater : ScriptableObject
     {
-        private const string valveOpenVRPackageString = "com.valve.openvr";
+        private const string valveOpenVRPackageString = "com.valvesoftware.openvr";
         private const string valveOpenVRGitURL = "https://github.com/ValveSoftware/steamvr_unity_plugin.git#UnityXRPlugin";
 
-        //public const string npmRegistryStringValue = "\"name\": \"Valve\", \"url\": \"https://registry.npmjs.org\", \"scopes\": [ \"com.valve.openvr\" ]";
+        //public const string npmRegistryStringValue = "\"name\": \"Valve\", \"url\": \"https://registry.npmjs.org\", \"scopes\": [ \"com.valvesoftware.openvr\" ]";
         //public const string scopedRegisteryKey = "scopedRegistries";
 
         private static ListRequest listRequest;
@@ -24,7 +24,7 @@ namespace Unity.XR.OpenVR
         private static System.Diagnostics.Stopwatch packageTime = new System.Diagnostics.Stopwatch();
         private const float estimatedTimeToInstall = 90; // in seconds
 
-        private const string updaterKeyTemplate = "com.valve.openvr.updateState.{0}";
+        private const string updaterKeyTemplate = "com.valve.valvesoftware.updateState.{0}";
         private static string updaterKey
         {
             get { return string.Format(updaterKeyTemplate, Application.productName); }

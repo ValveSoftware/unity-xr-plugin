@@ -1,5 +1,5 @@
 {
-  "name": "com.valve.openvr",
+  "name": "com.valvesoftware.openvr",
   "displayName": "OpenVR XR Plugin",
   "version": "1.0.0-preview.3",
   "unity": "2019.3",
@@ -22,16 +22,11 @@
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.legacyinputhelpers": "1.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ValveSoftware/steamvr_unity_plugin.git#UnityXRPlugin"
-  },
   "author": "Valve Corporation",
   "hideInEditor": false,
-  "homepage": "https://github.com/ValveSoftware/steamvr_unity_plugin.git#UnityXRPlugin",
+  "homepage": "https://github.com/ValveSoftware/unity-xr-plugin",
   "license": "BSD-3-Clause",
-  "publishConfig": 
-  { 
-    "registry": "https://npm.pkg.github.com/" 
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
   }
 }

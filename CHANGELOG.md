@@ -6,15 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [1.0.0-preview.3] - 2020-06-15
 ### Added 
+- Added NPM support
 - Added some extra logging
-- Support for 2019.4
+- Added support for Unity 2019.4
 
 ### Changed
-- Fixed builds not working correctly
-- Support for some edge cases with the SteamVR Unity Plugin
+- Fixed some pathing issues with action manifests
+- Fixed some rendering issues
 
-### Removed
-- Removed Legacy Input provider. For input see the SteamVR Unity Plugin on the asset store.
+## Removed
+- Legacy Input support. To get input for now you'll need to use the SteamVR Unity Plugin.
 
 ## [1.0.0-preview.2] - 2020-04-29
 ### Added 

@@ -15,7 +15,7 @@ namespace Unity.XR.OpenVR
     [InitializeOnLoad]
     public class OpenVRUpdater
     {
-        public const string valveOpenVRPackageString = "com.valve.openvr";
+        public const string valveOpenVRPackageString = "com.valvesoftware.openvr";
         public const string valveOpenVRGitURL = "https://github.com/ValveSoftware/steamvr_unity_plugin.git#UnityXRPlugin";
         public const string packageJSONurl = "https://raw.githubusercontent.com/ValveSoftware/steamvr_unity_plugin/UnityXRPlugin/package.json";
         public const string packageCHANGELOGurl = "https://raw.githubusercontent.com/ValveSoftware/steamvr_unity_plugin/UnityXRPlugin/CHANGELOG.md";
@@ -36,7 +36,7 @@ namespace Unity.XR.OpenVR
 
         static OpenVRUpdater()
         {
-            OpenVRSettings settings = OpenVRSettings.GetSettings();
+            /*OpenVRSettings settings = OpenVRSettings.GetSettings();
 
             if (settings.PromptToUpgradePackage)
             {
@@ -44,7 +44,7 @@ namespace Unity.XR.OpenVR
                 EditorApplication.update += Update;
                 listRequest = UnityEditor.PackageManager.Client.List(true);
                 updateState = UpdateStates.Listing;
-            }
+            }*/
         }
 
         private static void Update()

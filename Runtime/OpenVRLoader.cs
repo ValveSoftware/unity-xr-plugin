@@ -7,6 +7,7 @@ using UnityEngine.XR;
 using UnityEngine.Experimental.XR;
 using UnityEngine.XR.Management;
 using System.IO;
+using Valve.VR;
 
 #if UNITY_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -207,9 +208,9 @@ namespace Unity.XR.OpenVR
             StartSubsystem<XRDisplaySubsystem>();
             StartSubsystem<XRInputSubsystem>();
 
-            API.EVRInitError result = GetInitializationResult();
+            EVRInitError result = GetInitializationResult();
 
-            if (result != API.EVRInitError.None)
+            if (result != EVRInitError.None)
             {
                 Debug.LogError("<b>[OpenVR]</b> Could not initialize OpenVR. Error code: " + result.ToString());
                 return false;
@@ -251,7 +252,7 @@ namespace Unity.XR.OpenVR
         private static extern void SetUserDefinedSettings(UserDefinedSettings settings);
 
         [DllImport("XRSDKOpenVR", CharSet = CharSet.Auto)]
-        static extern API.EVRInitError GetInitializationResult();
+        static extern EVRInitError GetInitializationResult();
 
         [DllImport("XRSDKOpenVR", CharSet = CharSet.Auto)]
         static extern void RegisterTickCallback([MarshalAs(UnmanagedType.FunctionPtr)] TickCallbackDelegate callbackPointer);
