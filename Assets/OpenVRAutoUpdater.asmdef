@@ -1,0 +1,21 @@
+{
+    "name": "OpenVRAutoUpdaterSKIPDELETE",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.valvesoftware.openvr.installer",
+            "expression": "",
+            "define": "VALVE_SKIP_DELETE"
+        }
+    ],
+    "noEngineReferences": false
+}

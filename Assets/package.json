@@ -1,0 +1,29 @@
+{
+  "name": "com.valvesoftware.openvr.installer",
+  "displayName": "OpenVR XR Plugin Installer",
+  "version": "1.0.0",
+  "unity": "2019.3",
+  "description": "Provides rendering support for OpenVR devices in Unity XR.",
+  "keywords": [
+    "openvr",
+    "xr",
+    "virtual",
+    "reality",
+    "xreditorsubsystem",
+    "xrsdk",
+    "steamvr",
+    "vr",
+    "unity",
+    "sdk",
+    "valve"
+  ],
+  "dependencies": {
+  },
+  "author": "Valve Corporation",
+  "hideInEditor": false,
+  "homepage": "https://github.com/ValveSoftware/unity-xr-plugin",
+  "license": "BSD-3-Clause",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
+}
