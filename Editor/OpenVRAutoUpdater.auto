@@ -11,10 +11,10 @@ namespace Unity.XR.OpenVR
     [InitializeOnLoad]
     public class OpenVRAutoUpdater : ScriptableObject
     {
-        private const string valveOpenVRPackageString = "com.valvesoftware.openvr";
+        private const string valveOpenVRPackageString = "com.valvesoftware.unity.openvr";
         private const string valveOpenVRGitURL = "https://github.com/ValveSoftware/steamvr_unity_plugin.git#UnityXRPlugin";
 
-        //public const string npmRegistryStringValue = "\"name\": \"Valve\", \"url\": \"https://registry.npmjs.org\", \"scopes\": [ \"com.valvesoftware.openvr\" ]";
+        //public const string npmRegistryStringValue = "\"name\": \"Valve\", \"url\": \"https://registry.npmjs.org\", \"scopes\": [ \"com.valvesoftware.unity.openvr\" ]";
         //public const string scopedRegisteryKey = "scopedRegistries";
 
         private static ListRequest listRequest;

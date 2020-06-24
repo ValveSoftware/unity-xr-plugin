@@ -4,7 +4,7 @@ The purpose of this package is to provide OpenVR rendering to Unity XR. This pac
 
 # Documentation
 
-There is some brief documentation included with this plugin at /Documentation~/com.valvesoftware.openvr.md
+There is some brief documentation included with this plugin at /Documentation~/com.valvesoftware.unity.openvr.md
 
 # Input
 

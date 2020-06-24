@@ -4,13 +4,14 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.0.0-preview.3] - 2020-06-15
+## [1.0.0-preview.3] - 2020-06-24
 ### Added 
 - Added NPM support
 - Added some extra logging
 - Added support for Unity 2019.4
 
 ### Changed
+- Renamed package from com.valve.openvr to com.valvesoftware.unity.openvr
 - Fixed some pathing issues with action manifests
 - Fixed some rendering issues
 

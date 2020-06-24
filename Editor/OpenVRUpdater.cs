@@ -15,7 +15,7 @@ namespace Unity.XR.OpenVR
     [InitializeOnLoad]
     public class OpenVRUpdater
     {
-        public const string valveOpenVRPackageString = "com.valvesoftware.openvr";
+        public const string valveOpenVRPackageString = "com.valvesoftware.unity.openvr";
         public const string valveOpenVRGitURL = "https://github.com/ValveSoftware/steamvr_unity_plugin.git#UnityXRPlugin";
         public const string packageJSONurl = "https://raw.githubusercontent.com/ValveSoftware/steamvr_unity_plugin/UnityXRPlugin/package.json";
         public const string packageCHANGELOGurl = "https://raw.githubusercontent.com/ValveSoftware/steamvr_unity_plugin/UnityXRPlugin/CHANGELOG.md";
