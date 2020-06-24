@@ -17,7 +17,7 @@
             "define": "VALVE_UPDATE_FORCE"
         },
         {
-            "name": "com.valvesoftware.openvr.installer.skipdelete",
+            "name": "com.valvesoftware.unity.openvr.installer.skipdelete",
             "expression": "",
             "define": "VALVE_SKIP_DELETE"
         }

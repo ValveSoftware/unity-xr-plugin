@@ -13,9 +13,10 @@ namespace Unity.XR.OpenVR
     [InitializeOnLoad]
     public class OpenVRAutoUpdater : ScriptableObject
     {
-        private const string valveOpenVRPackageString = "com.valvesoftware.openvr";
+        private const string valveOpenVRPackageStringOld = "com.valve.openvr";
+        private const string valveOpenVRPackageString = "com.valvesoftware.unity.openvr";
 
-        public const string npmRegistryStringValue = "\"name\": \"Valve\", \"url\": \"https://registry.npmjs.org\", \"scopes\": [ \"com.valvesoftware.openvr\" ]";
+        public const string npmRegistryStringValue = "\"name\": \"Valve\", \"url\": \"https://registry.npmjs.org\", \"scopes\": [ \"com.valvesoftware.unity.openvr\" ]";
         public const string scopedRegisteryKey = "scopedRegistries";
 
         private static ListRequest listRequest;
@@ -26,7 +27,7 @@ namespace Unity.XR.OpenVR
         private static System.Diagnostics.Stopwatch packageTime = new System.Diagnostics.Stopwatch();
         private const float estimatedTimeToInstall = 90; // in seconds
 
-        private const string updaterKeyTemplate = "com.valvesoftware.openvr.updateState.{0}";
+        private const string updaterKeyTemplate = "com.valvesoftware.unity.openvr.updateState.{0}";
         private static string updaterKey
         {
             get { return string.Format(updaterKeyTemplate, Application.productName); }
@@ -111,7 +112,12 @@ namespace Unity.XR.OpenVR
                             if (listRequest.Result.Any(package => package.name == valveOpenVRPackageString))
                             {
                                 //if it's there then remove it in preparation for adding the scoped registry
-                                RequestRemove();
+                                RequestRemove(valveOpenVRPackageString);
+                            }
+                            else if (listRequest.Result.Any(package => package.name == valveOpenVRPackageStringOld))
+                            {
+                                //if it's there then remove it in preparation for adding the scoped registry
+                                RequestRemove(valveOpenVRPackageStringOld);
                             }
                             else
                             {
@@ -174,7 +180,12 @@ namespace Unity.XR.OpenVR
                             if (listRequest.Result.Any(package => package.name == valveOpenVRPackageString))
                             {
                                 //try remove again if it didn't work and we don't know why.
-                                RequestRemove();
+                                RequestRemove(valveOpenVRPackageString);
+                            }
+                            else if (listRequest.Result.Any(package => package.name == valveOpenVRPackageStringOld))
+                            {
+                                //try remove again if it didn't work and we don't know why.
+                                RequestRemove(valveOpenVRPackageStringOld);
                             }
                             else
                             {
@@ -320,7 +331,7 @@ namespace Unity.XR.OpenVR
         private const string scopedRegistryValue = "{ \"name\": \"Valve\",\n" +
                                                    "\"url\": \"https://registry.npmjs.org/\"," +
                                                    "\"scopes\": [" +
-                                                   "\"com.valvesoftware\", \"com.valvesoftware.openvr\"" +
+                                                   "\"com.valvesoftware\", \"com.valvesoftware.unity.openvr\"" +
                                                    "] }";
         private const string scopedRegistryNodeTemplate = "[ {0} ]"; 
 
@@ -381,10 +392,10 @@ namespace Unity.XR.OpenVR
             listRequest = Client.List();
         }
 
-        private static void RequestRemove()
+        private static void RequestRemove(string packageName)
         {
             updateState = UpdateStates.WaitingForRemove;
-            removeRequest = UnityEditor.PackageManager.Client.Remove(valveOpenVRPackageString);
+            removeRequest = UnityEditor.PackageManager.Client.Remove(packageName);
         }
 
         private static void RequestAdd()
