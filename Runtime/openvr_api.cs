@@ -8,7 +8,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Valve.VR;
 
 #if UNITY_5_3_OR_NEWER
 using UnityEngine;
@@ -1997,6 +1996,9 @@ public class Utils
 {
 	public static IntPtr ToUtf8(string managedString)
 	{
+		if (string.IsNullOrEmpty(managedString))
+			return IntPtr.Zero;
+
 		int size = System.Text.Encoding.UTF8.GetByteCount(managedString) + 1;
 		if (buffer.Length < size) buffer = new byte[size];
 		int written = System.Text.Encoding.UTF8.GetBytes(managedString, 0, managedString.Length, buffer, 0);
