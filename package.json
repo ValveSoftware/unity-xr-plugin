@@ -3,7 +3,7 @@
   "displayName": "OpenVR XR Plugin",
   "version": "1.0.0-preview.3",
   "unity": "2019.3",
-  "description": "Provides rendering and legacy input support for OpenVR devices in Unity.",
+  "description": "Provides rendering support for OpenVR devices in Unity XR.",
   "keywords": [
     "openvr",
     "xr",
