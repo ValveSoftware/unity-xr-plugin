@@ -1,0 +1,9 @@
+LIBRARY XRSDKOpenVR
+EXPORTS
+	GetInitializationResult @1
+	GetMirrorViewMode @2
+	RegisterTickCallback @3
+	SetMirrorViewMode @4
+	SetUserDefinedSettings @5
+	UnityPluginLoad @6
+	XRSDKPreInit @7
