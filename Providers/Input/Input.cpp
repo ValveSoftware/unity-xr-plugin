@@ -41,7 +41,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API UpdateDeviceState( UnitySubsy
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->UpdateDeviceState( handle, deviceId, updateType, deviceState );
 }
@@ -50,7 +54,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API HandleEvent( UnitySubsystemHa
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->HandleEvent( handle, eventType, deviceId, buffer, size );
 }
@@ -59,7 +67,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API HandleRecenter( UnitySubsyste
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->HandleRecenter( handle );
 }
@@ -68,7 +80,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API HandleHapticImpulse( UnitySub
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->HandleHapticImpulse( handle, deviceId, channel, amplitude, duration );
 }
@@ -83,7 +99,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API QueryHapticCapabilities( Unit
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->QueryHapticCapabilities( handle, deviceId, capabilities );
 }
@@ -92,7 +112,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API HandleHapticStop( UnitySubsys
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->HandleHapticStop( handle, deviceId );
 }
@@ -101,7 +125,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API QueryTrackingOriginMode( Unit
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->QueryTrackingOriginMode( handle, trackingOriginMode );
 }
@@ -110,7 +138,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API QuerySupportedTrackingOriginM
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->QuerySupportedTrackingOriginModes( handle, supportedTrackingOriginModes );
 }
@@ -119,7 +151,11 @@ static UnitySubsystemErrorCode UNITY_INTERFACE_API HandleSetTrackingOriginMode( 
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->HandleSetTrackingOriginMode( handle, trackingOriginMode );
 }
@@ -128,7 +164,11 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API TryGetDeviceStateAtTime( UnitySubsys
 {
 	if ( !userData )
 		return kUnitySubsystemErrorCodeInvalidArguments;
+
 	OpenVRInputProvider *input = (OpenVRInputProvider * )userData;
+
+	if ( !input )
+		return kUnitySubsystemErrorCodeInvalidArguments;
 
 	return input->TryGetDeviceStateAtTime( handle, time, deviceId, state );
 }
@@ -688,6 +728,12 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::HandleHapticSto
 
 UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::QueryTrackingOriginMode( UnitySubsystemHandle handle, UnityXRInputTrackingOriginModeFlags *trackingOriginMode )
 {
+	if ( OpenVRSystem::Get().GetCompositor() == nullptr )
+	{
+		*trackingOriginMode = kUnityXRInputTrackingOriginModeUnknown;
+		return kUnitySubsystemErrorCodeFailure;
+	}
+
 	vr::ETrackingUniverseOrigin originType = OpenVRSystem::Get().GetCompositor()->GetTrackingSpace();
 	switch ( originType )
 	{
@@ -704,6 +750,7 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::QueryTrackingOr
 		*trackingOriginMode = kUnityXRInputTrackingOriginModeUnknown;
 		break;
 	}
+
 	return kUnitySubsystemErrorCodeSuccess;
 }
 

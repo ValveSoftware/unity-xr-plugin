@@ -10,7 +10,7 @@ There is some brief documentation included with this plugin at /Documentation~/c
 
 As part of our commitment to [OpenXR](https://store.steampowered.com/newshub/app/250820/view/2396425843528787269) we will begin targeting the OpenXR API in future versions of our game engine plugins.
 
-For now, to get access to controllers and other forms of input you will need to install the SteamVR Unity Plugin. This can be found at (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b2).
+For now, to get access to controllers and other forms of input you will need to install the SteamVR Unity Plugin. This can be found at (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b3).
 
 
 ## Known Issues:
@@ -48,7 +48,7 @@ For now, to get access to controllers and other forms of input you will need to 
 
 
 ### SteamVR Input System:
-* Install SteamVR Unity Plugin v2.6.0b2 (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b2)
+* Install SteamVR Unity Plugin v2.6.0b2 (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b3)
 * It should install the OpenVR XR API package automatically for 2020.1+ for 2019.3/4 you’ll need to add it with the instructions above.
 * Open the SteamVR Input window (Window -> SteamVR Input)
 * Accept the default json

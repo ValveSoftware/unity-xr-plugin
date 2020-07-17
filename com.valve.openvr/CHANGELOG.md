@@ -4,6 +4,11 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-preview.6] - 2020-07-17
+### Changed 
+- Adding some subsystem failure cases to TrackingOrigin queries
+- Switching to debug dlls. If you would like release DLLs either wait for v1.0 or build them from source.
+
 ## [1.0.0-preview.5] - 2020-07-15
 ### Changed 
 - Fixed 32bit builds
@@ -13,9 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Fixed issue where SteamVR Beta was required.
 
 ## [1.0.0-preview.4] - 2020-06-24
-### Added 
-- Fixed some issues with npm
-- Fixed some issues with black screens
+### Changed
+- Switched from legacy input (Unity XR) to SteamVR Input via the SteamVR Unity Plugin for controller state processing
+- Renamed package from com.valve.openvr to com.valvesoftware.unity.openvr
+- Fixed some pathing issues with action manifests
+- Fixed some rendering issues
 
 ## [1.0.0-preview.3] - 2020-06-24
 ### Added 
