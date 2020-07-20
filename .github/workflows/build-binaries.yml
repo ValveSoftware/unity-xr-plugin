@@ -1,0 +1,71 @@
+name: Build binaries
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - com.valve.openvr/Runtime/x64/**
+      - com.valve.openvr/Runtime/x86/**
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+        
+    - name: Generate build files
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake -G "Visual Studio 16 2019" .
+      
+    - name: Build binaries
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake --build . --target ALL_BUILD --config Debug
+    
+    - name: Add modified binaries
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git add -u
+      
+    - name: Commit modified binaries
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Github Actions: New 64-bit binaries" -a
+
+    - name: Push modified binaries
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Clean 64-bit build files
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git clean -d -f -x
+
+    - name: Generate build files
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake -G "Visual Studio 16 2019" -A Win32 .
+
+    - name: Build binaries
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake --build . --target ALL_BUILD --config Debug
+    
+    - name: Add modified binaries
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git add -u
+      
+    - name: Commit modified binaries
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Github Actions: New 32-bit binaries" -a
+
+    - name: Push modified binaries
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
