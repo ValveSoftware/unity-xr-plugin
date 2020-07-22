@@ -52,6 +52,15 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
 
+if(MSVC)
+    message(WARNING "Adding static link option.")
+    add_compile_options(
+        $<$<CONFIG:>:/MT> #---------|
+        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
+        $<$<CONFIG:Release>:/MT> #--|
+    )
+endif()
+
 message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit")
 
 # XRSDKOpenVR
