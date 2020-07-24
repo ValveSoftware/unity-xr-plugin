@@ -2,7 +2,7 @@ name: Build binaries
 
 on:
   push:
-    branches: [ master ]
+    branches: [ linux ]
     paths-ignore:
       - com.valve.openvr/Runtime/x64/**
       - com.valve.openvr/Runtime/x86/**
@@ -10,7 +10,10 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: ['ubuntu-latest', 'windows-latest']
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
@@ -18,13 +21,25 @@ jobs:
         persist-credentials: false
         fetch-depth: 0
         
-    - name: Generate build files
-      working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: cmake -G "Visual Studio 16 2019" .
-      
-    - name: Build binaries
-      working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: cmake --build . --target ALL_BUILD --config Debug
+      if: matrix.os == 'ubuntu-latest'
+      - name: Generate build files
+        working-directory: ${{runner.workspace}}/unity-xr-plugin
+        run: cmake .
+        
+      if: matrix.os == 'ubuntu-latest'
+      - name: Build binaries
+        working-directory: ${{runner.workspace}}/unity-xr-plugin
+        run: make
+
+      if: matrix.os == 'windows-latest'
+      - name: Generate build files
+        working-directory: ${{runner.workspace}}/unity-xr-plugin
+        run: cmake -G "Visual Studio 16 2019" .
+        
+      if: matrix.os == 'windows-latest'
+      - name: Build binaries
+        working-directory: ${{runner.workspace}}/unity-xr-plugin
+        run: cmake --build . --target ALL_BUILD --config Debug
     
     - name: Add modified binaries
       working-directory: ${{runner.workspace}}/unity-xr-plugin

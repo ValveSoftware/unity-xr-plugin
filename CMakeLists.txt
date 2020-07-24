@@ -40,7 +40,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(ARCH_TARGET linux64)
 
   if(${PLATFORM} MATCHES 32)
-    message(WARNING "OpenVR x86 binaries not provided on GNU/Linux.")
+    message(WARNING "OpenVR x86 binaries not provided on x86 GNU/Linux.")
   endif()
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
