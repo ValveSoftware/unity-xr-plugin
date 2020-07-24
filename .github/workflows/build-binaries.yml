@@ -9,37 +9,35 @@ on:
 
 jobs:
   build:
-
     strategy:
       matrix:
         os: ['ubuntu-latest', 'windows-latest']
     runs-on: ${{ matrix.os }}
-
     steps:
     - uses: actions/checkout@v2
       with:
         persist-credentials: false
         fetch-depth: 0
         
-      - name: Generate build files (linux)
-        if: matrix.os == 'ubuntu-latest'
-        working-directory: ${{runner.workspace}}/unity-xr-plugin
-        run: cmake .
+    - name: Generate build files (linux)
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake .
       
-      - name: Build binaries (linux)
-        if: matrix.os == 'ubuntu-latest'
-        working-directory: ${{runner.workspace}}/unity-xr-plugin
-        run: make
+    - name: Build binaries (linux)
+      if: matrix.os == 'ubuntu-latest'
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: make
 
-      - name: Generate build files (windows)
-        if: matrix.os == 'windows-latest' 
-        working-directory: ${{runner.workspace}}/unity-xr-plugin
-        run: cmake -G "Visual Studio 16 2019" .
+    - name: Generate build files (windows)
+      if: matrix.os == 'windows-latest' 
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake -G "Visual Studio 16 2019" .
         
-      - name: Build binaries (windows)
-        if: matrix.os == 'windows-latest'
-        working-directory: ${{runner.workspace}}/unity-xr-plugin
-        run: cmake --build . --target ALL_BUILD --config Debug
+    - name: Build binaries (windows)
+      if: matrix.os == 'windows-latest'
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake --build . --target ALL_BUILD --config Debug
     
     - name: Add modified binaries
       working-directory: ${{runner.workspace}}/unity-xr-plugin
