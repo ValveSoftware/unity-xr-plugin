@@ -451,6 +451,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_SubmitCurrentFrame()
 
 UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_BlitToMirrorViewRenderTarget( const UnityXRMirrorViewBlitInfo *mirrorBlitInfo )
 {
+	#ifndef __linux__
 	// Set RTV
 	if ( XR_WIN && m_eActiveTextureType == vr::TextureType_DirectX )
 	{
@@ -463,6 +464,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_BlitToMirrorViewRenderT
 		const FLOAT clrColor[4] = { 0, 0, 0, 0 };
 		pImmediateContext->ClearRenderTargetView( pRTV, clrColor );
 	}
+	#endif
 
 	return kUnitySubsystemErrorCodeSuccess;
 }
