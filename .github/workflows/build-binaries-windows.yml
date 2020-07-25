@@ -1,4 +1,4 @@
-name: Build binaries
+name: Build binaries (windows)
 
 on:
   push:
@@ -9,74 +9,47 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: ['ubuntu-latest', 'windows-latest']
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
       with:
         persist-credentials: false
         fetch-depth: 0
-        
-    - name: Generate build files (linux)
-      if: matrix.os == 'ubuntu-latest'
-      working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: cmake .
-      
-    - name: Build binaries (linux)
-      if: matrix.os == 'ubuntu-latest'
-      working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: make
 
-    - name: Generate build files (windows)
-      if: matrix.os == 'windows-latest' 
+    - name: Generate build files (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake -G "Visual Studio 16 2019" .
         
-    - name: Build binaries (windows)
-      if: matrix.os == 'windows-latest'
+    - name: Build binaries (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake --build . --target ALL_BUILD --config Debug
     
-    - name: Add modified binaries
+    - name: Add modified binaries (x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git add -u
-      
-    - name: Commit modified binaries
-      working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Github Actions: New 64-bit binaries" -a
-
-    - name: Push modified binaries
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Clean 64-bit build files
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git clean -d -f -x
 
-    - name: Generate build files
+    - name: Generate build files (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake -G "Visual Studio 16 2019" -A Win32 .
 
-    - name: Build binaries
+    - name: Build binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake --build . --target ALL_BUILD --config Debug
     
-    - name: Add modified binaries
+    - name: Add modified binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git add -u
       
-    - name: Commit modified binaries
+    - name: Commit modified binaries (windows)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "Github Actions: New 32-bit binaries" -a
+        git commit -m "Github Actions: New windows binaries" -a
 
     - name: Push modified binaries
       uses: ad-m/github-push-action@master
