@@ -8,11 +8,7 @@
 #include "IUnityInterface.h"
 
 #ifndef UNITY_VULKAN_HEADER
-#ifndef __linux__
 #define UNITY_VULKAN_HEADER <vulkan/vulkan.h>
-#else
-#define UNITY_VULKAN_HEADER "vulkan.h"
-#endif
 #endif
 
 #include UNITY_VULKAN_HEADER
