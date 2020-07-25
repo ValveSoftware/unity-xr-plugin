@@ -48,12 +48,9 @@ jobs:
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git add -u
       
-    - name: Commit modified binaries (windows)
+    - name: Push modified binaries (windows)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Github Actions: New windows binaries" -a
+      run: git commit -m "Github Actions: New windows binaries" -a
 
     - name: Push modified binaries
       run: git push
@@ -85,10 +82,7 @@ jobs:
       
     - name: Commit modified binaries (linux)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Github Actions: New linux binaries" -a
+      run: git commit -m "Github Actions: New linux binaries" -a
 
     - name: Push modified binaries
       run: git push
