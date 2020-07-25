@@ -11,6 +11,7 @@
 #else
 #include <limits.h>
 #include <unistd.h>     //readlink
+#include <string.h>
 #endif
 #include <sys/stat.h>
 #include <algorithm>
