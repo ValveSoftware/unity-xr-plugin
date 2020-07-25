@@ -52,9 +52,10 @@ jobs:
         git commit -m "Github Actions: New windows binaries" -a
 
     - name: Push modified binaries
-      uses: ad-m/github-push-action@linux
+      uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: linux
         
   build-linux:
     needs: build-windows
@@ -85,6 +86,7 @@ jobs:
         git commit -m "Github Actions: New linux binaries" -a
 
     - name: Push modified binaries
-      uses: ad-m/github-push-action@linux
+      uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: linux
