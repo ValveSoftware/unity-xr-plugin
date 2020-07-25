@@ -49,7 +49,12 @@ const std::string kEditorAppKey = "EditorAppKey:";
 const std::string kActionManifestFilePath = "ActionManifestFileRelativeFilePath:";
 const std::string kMirrorViewMode = "MirrorView:";
 
+#ifdef __linux__
+const std::string kStreamingAssetsFilePath = "StreamingAssets/SteamVR/OpenVRSettings.asset";
+#else
 const std::string kStreamingAssetsFilePath = "StreamingAssets\\SteamVR\\OpenVRSettings.asset";
+#endif
+
 const std::string kVSDebugPath = "..\\..\\";
 
 
