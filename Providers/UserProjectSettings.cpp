@@ -12,12 +12,15 @@
 #include <limits.h>
 #include <unistd.h>     //readlink
 #include <string.h>
+#include <libgen.h>
 #endif
 #include <sys/stat.h>
 #include <algorithm>
 
 #ifdef __linux__
 #define MAX_PATH PATH_MAX
+#define strcpy_s strcpy
+#define _getcwd getcwd
 #endif
 
 typedef struct _UserDefinedSettings
@@ -103,9 +106,13 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 	char exePathFilename[MAX_PATH];
 	char exePathExtension[MAX_PATH];
 
+	#ifndef __linux__
 	_splitpath_s( fullExePath, exePathDrive, exePathDirectory, exePathFilename, exePathExtension );
 
 	std::string basePath = std::string( exePathDrive ) + std::string( exePathDirectory );
+	#else
+	std::string basePath = std::string( dirname( fullExePath ) );
+	#endif
 
 	if ( !bAddDataDirectory )
 	{
@@ -113,7 +120,13 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 	}
 	else
 	{
-		std::string projectDirectoryName = std::string( exePathFilename ) + "_Data\\";
+		std::string projectDirectoryName;
+		
+		#ifndef __linux__
+		projectDirectoryName = std::string( exePathFilename ) + "_Data\\";
+		#else
+		projectDirectoryName = RemoveExtension( std::string( basename( fullExePath ) ) + "_Data/";
+		#endif
 
 		std::string projectDirectoryPath = basePath + projectDirectoryName;
 		if ( !DirectoryExists( projectDirectoryPath.c_str() ) )
@@ -176,6 +189,14 @@ void UserProjectSettings::Trim( std::string &s )
 		rit++;
 
 	s = std::string( it, rit.base() );
+}
+
+std::string UserProjectSettings::RemoveExtension( const std::string& filename ) 
+{
+    size_t lastdot = filename.find_last_of( "." );
+    if ( lastdot == std::string::npos ) 
+		return filename;
+    return filename.substr( 0, lastdot ); 
 }
 
 EVRStereoRenderingModes UserProjectSettings::GetStereoRenderingMode()

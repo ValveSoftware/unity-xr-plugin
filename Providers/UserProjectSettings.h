@@ -45,4 +45,5 @@ private:
 	static std::string GetExecutablePath();
 	static void Trim( std::string &s );
 	static bool DirectoryExists( const char *const path );
+	static std::string RemoveExtension( const std::string &filename );
 };
