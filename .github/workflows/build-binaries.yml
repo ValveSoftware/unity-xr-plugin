@@ -50,7 +50,8 @@ jobs:
       
     - name: Push modified binaries (windows)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: git commit -m "Github Actions: New windows binaries" -a
+      run: |
+        git commit -m "Github Actions: New windows binaries" -a
 
     - name: Push modified binaries
       run: git push
@@ -82,7 +83,8 @@ jobs:
       
     - name: Commit modified binaries (linux)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: git commit -m "Github Actions: New linux binaries" -a
+      run: |
+        git commit -m "Github Actions: New linux binaries" -a
 
     - name: Push modified binaries
       run: git push
