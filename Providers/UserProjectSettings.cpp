@@ -137,12 +137,11 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 			//check for the path it might be in if we've made a vs debug build
 			projectDirectoryPath = basePath + kVSDebugPath + projectDirectoryName;
 		}
+		return projectDirectoryPath;
 		#else
 		projectDirectoryName = RemoveFileExtension( std::string( basename( fullExePath ) ) + "_Data/" );
+		return basePath + projectDirectoryName;
 		#endif
-
-
-		return projectDirectoryPath;
 	}
 }
 
