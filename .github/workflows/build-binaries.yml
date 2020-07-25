@@ -15,7 +15,10 @@ jobs:
       with:
         persist-credentials: false
         fetch-depth: 0
-    - run: git checkout HEAD
+    
+    - name: Pull latest
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git pull
 
     - name: Generate build files (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
@@ -53,10 +56,7 @@ jobs:
         git commit -m "Github Actions: New windows binaries" -a
 
     - name: Push modified binaries
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: linux
+      run: git push
         
   build-linux:
     needs: build-windows
@@ -66,7 +66,10 @@ jobs:
       with:
         persist-credentials: false
         fetch-depth: 0
-    - run: git checkout HEAD
+    
+    - name: Pull latest
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git pull
         
     - name: Generate build files (linux)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
@@ -88,7 +91,4 @@ jobs:
         git commit -m "Github Actions: New linux binaries" -a
 
     - name: Push modified binaries
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: linux
+      run: git push
