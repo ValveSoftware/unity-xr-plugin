@@ -19,8 +19,15 @@
 
 #ifdef __linux__
 #define MAX_PATH PATH_MAX
-#define strcpy_s strcpy
 #define _getcwd getcwd
+char *strcpy_s( char *dest, const char *src )
+{
+	return strcpy( dest, src );
+}
+char *strcpy_s( char *dest, unsigned long maxCharacters, const char *src )
+{
+	return strncpy( dest, src, maxCharacters );
+}
 #endif
 
 typedef struct _UserDefinedSettings
@@ -125,7 +132,7 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 		#ifndef __linux__
 		projectDirectoryName = std::string( exePathFilename ) + "_Data\\";
 		#else
-		projectDirectoryName = RemoveExtension( std::string( basename( fullExePath ) ) + "_Data/";
+		projectDirectoryName = RemoveExtension( std::string( basename( fullExePath ) ) + "_Data/" );
 		#endif
 
 		std::string projectDirectoryPath = basePath + projectDirectoryName;
