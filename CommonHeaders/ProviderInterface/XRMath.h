@@ -3,6 +3,10 @@
 #include "UnityXRTypes.h"
 #include <limits>
 
+#ifdef __linux__
+#include <cmath>
+#endif
+
 #define EPSILON 0.00001F
 
 using namespace std;
