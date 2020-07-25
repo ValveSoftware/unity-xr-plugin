@@ -9,6 +9,10 @@
 #include "ProviderInterface/XRMath.h"
 #include "UserProjectSettings.h"
 
+#ifdef __linux__
+#include <cstring>
+#endif
+
 // Interfaces
 static IUnityXRDisplayInterface *s_pXRDisplay = nullptr;
 static IUnityXRStats *s_pXRStats;
@@ -224,7 +228,7 @@ void OpenVRDisplayProvider::Lifecycle_Shutdown( UnitySubsystemHandle handle )
 	if ( vr::VROverlayView() )
 	{
 		vr::VROverlayView()->ReleaseOverlayView( &m_overlayView );
-		m_pMirrorTextureDX = nullptr;
+		ReleaseOverlayPointers();
 	}
 
 	// Destroy all eye textures
@@ -296,7 +300,7 @@ void OpenVRDisplayProvider::TryUpdateMirrorMode( bool skipResolutionCheck )
 		else if ( m_nMirrorMode == kUnityXRMirrorBlitDistort )
 		{
 			if ( ( !m_bIsUsingCustomMirrorMode && m_bIsHeadsetResolutionSet )	// We need to pick up the shared texture if we're on SteamVR View mode after the first frame
-				|| !m_pMirrorTextureDX )									// If getting the shared texture failed once, retry
+				|| !HasOverlayPointer() )									// If getting the shared texture failed once, retry
 			{
 				SetupMirror();
 			}
@@ -451,6 +455,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_SubmitCurrentFrame()
 
 UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_BlitToMirrorViewRenderTarget( const UnityXRMirrorViewBlitInfo *mirrorBlitInfo )
 {
+	#ifndef __linux__
 	// Set RTV
 	if ( XR_WIN && m_eActiveTextureType == vr::TextureType_DirectX )
 	{
@@ -463,6 +468,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_BlitToMirrorViewRenderT
 		const FLOAT clrColor[4] = { 0, 0, 0, 0 };
 		pImmediateContext->ClearRenderTargetView( pRTV, clrColor );
 	}
+	#endif
 
 	return kUnitySubsystemErrorCodeSuccess;
 }
@@ -530,7 +536,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::MainThread_QueryMirrorViewBlitDes
 	m_pMirrorTexture = m_UnityTextures[stage][0];
 
 	// Check the current mirror mode
-	if ( m_bIsHeadsetResolutionSet && m_nMirrorMode == kUnityXRMirrorBlitDistort && m_bIsUsingCustomMirrorMode && m_pMirrorTextureDX )
+	if ( m_bIsHeadsetResolutionSet && m_nMirrorMode == kUnityXRMirrorBlitDistort && m_bIsUsingCustomMirrorMode && HasOverlayPointer() )
 	{
 		// SteamVR View - Grab the Overlay view for the SteamVR VR view
 		vr::EVROverlayError eOverlayError = vr::VROverlayView()->AcquireOverlayView( m_hOverlay, &m_nativeDevice, &m_overlayView, sizeof( m_overlayView ) );
@@ -690,182 +696,9 @@ void OpenVRDisplayProvider::SetupMirror()
 	if ( !m_bIsHeadsetResolutionSet )
 		return;
 
-	// Acquire the SteamVR Display VR View overlay 
-	vr::EVROverlayError eOverlayError;
-	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && !m_bOverlayFallback && m_hOverlay == k_ulInvalidOverlayHandle && !m_bIsUsingCustomMirrorMode && vr::VROverlay() )
+	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort )
 	{
-		eOverlayError = vr::VROverlay()->FindOverlay( vr::k_pchHeadsetViewOverlayKey, &m_hOverlay );
-		if ( eOverlayError != vr::VROverlayError_None )
-		{
-			XR_TRACE( "[OpenVR] [Mirror] Failed to find the SteamVR Display VR View overlay [%i]\n", eOverlayError );
-			m_bIsUsingCustomMirrorMode = false;
-		}
-		else
-		{
-			XR_TRACE( "[OpenVR] [Mirror] Mirror overlay found [%i]\n", eOverlayError );
-		}
-	}
-
-	// Grab the active render device
-	ID3D11Device *m_pD3D11Device = m_eActiveTextureType == vr::TextureType_DirectX ? s_pProviderContext->interfaces->Get< IUnityGraphicsD3D11 >()->GetDevice() : nullptr;
-
-	// Create a native device handle for OpenVR
-	m_nativeDevice.eType = vr::DeviceType_DirectX11;
-	m_nativeDevice.handle = m_pD3D11Device;
-
-	// Get the active overlay view - should be our scene application now at this stage
-	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && !m_bOverlayFallback && m_hOverlay != k_ulInvalidOverlayHandle && m_bIsUsingRGB && !m_bIsUsingCustomMirrorMode && vr::VRSystem() && vr::VROverlayView() )
-	{
-		// Grab the Overlay view for the SteamVR VR view
-		eOverlayError = vr::VROverlayView()->AcquireOverlayView( m_hOverlay, &m_nativeDevice, &m_overlayView, sizeof( m_overlayView ) );
-		if ( eOverlayError != vr::VROverlayError_None )
-		{
-			XR_TRACE( "[OpenVR] [Mirror] Unable to acquire the SteamVR Display VR View overlay [%i]\n", eOverlayError );
-			m_hOverlay = k_ulInvalidOverlayHandle;
-		}
-		else
-		{
-			XR_TRACE( "[OpenVR] [Mirror] Mirror view overlay acquired [%i]\n", eOverlayError );
-
-			if ( !m_overlayView.texture.handle )
-			{
-				XR_TRACE( "[OpenVR] [Mirror] No valid texture for the overlay view was found\n" );
-			}
-		}
-	}
-
-	if ( m_bIsUsingRGB									// Unity only supports RGB textures for the mirror mode in linear mode
-		&& m_nMirrorMode == kUnityXRMirrorBlitDistort	// kUnityXRMirrorBlitDistort is the SteamVR View
-		&& m_bIsHeadsetResolutionSet					// The headset resolution must be set before we attempt to open the shared texture
-		&& !m_bIsUsingCustomMirrorMode					// Check if the shared texture has already been opened
-		&& !m_bIsIncorrectTexture
-		&& m_overlayView.texture.handle
-		&& m_pD3D11Device
-		&& m_hOverlay != k_ulInvalidOverlayHandle
-		)
-	{
-		// Get current mirror resolution
-		if ( vr::VRHeadsetView() )
-		{
-			uint32_t nCurrentMirrorWidth, nCurrentMirrorHeight;
-			vr::VRHeadsetView()->GetHeadsetViewSize( &nCurrentMirrorWidth, &nCurrentMirrorHeight );
-			XR_TRACE( "[OpenVR] [Mirror] Mirror view set to %ix%i\n", nCurrentMirrorWidth, nCurrentMirrorHeight );
-		}
-
-		// Attempt to open shared texture
-		XR_TRACE( "[OpenVR] [Mirror] Attempting to open shared texture...\n" );
-		if ( SUCCEEDED( m_pD3D11Device->OpenSharedResource( m_overlayView.texture.handle, __uuidof( ID3D11Texture2D ), (void ** )& m_pMirrorTextureDX ) ) )
-		{
-			// Convert the overlay texture to a Texture2D
-			D3D11_TEXTURE2D_DESC mirrorTextureDesc;
-			m_pMirrorTextureDX->GetDesc( &mirrorTextureDesc );
-
-			UnityXRVector2 recommendedMirrorSize = GetRecommendedMirrorResolution();
-
-			// Check if it's the correct size
-			if ( mirrorTextureDesc.Width == recommendedMirrorSize.x )
-			{
-				UnityXRRenderTextureDesc pNativeTexture;
-
-				memset( &pNativeTexture, 0, sizeof( UnityXRRenderTextureDesc ) );
-				pNativeTexture.colorFormat = kUnityXRRenderTextureFormatRGBA32;
-				pNativeTexture.depthFormat = kUnityXRDepthTextureFormat24bitOrGreater;
-				pNativeTexture.depth.nativePtr = (void * )kUnityXRRenderTextureIdDontCare;
-
-				pNativeTexture.width = m_nEyeMirrorWidth;
-				pNativeTexture.height = m_nEyeMirrorHeight;
-				pNativeTexture.color.nativePtr = m_pMirrorTextureDX;
-				pNativeTexture.flags |= kUnityXRRenderTextureFlagsSRGB;
-
-				UnityXRRenderTextureId pSourceTextureId;
-				UnitySubsystemErrorCode eCreateTextureError = s_pXRDisplay->CreateTexture( s_DisplayHandle, &pNativeTexture, &pSourceTextureId );
-				if ( eCreateTextureError != kUnitySubsystemErrorCodeSuccess )
-				{
-					XR_TRACE( "[OpenVR] [Mirror] Unable to create a native texture to display in mirror mode [%i]\n", eCreateTextureError );
-					m_bIsUsingCustomMirrorMode = false;
-				}
-
-				// Use the SteamVR VR view as mirror if possible
-				m_mirrorRenderSubRect = { 0.0f, 0.0f, 1.0f, 1.0f };
-				m_pMirrorTexture = m_pSteamVRTextureId = pSourceTextureId;
-				m_bIsIncorrectTexture = false;
-				m_bIsUsingCustomMirrorMode = true;
-				m_bIsSteamVRViewAvailable = true;
-				XR_TRACE( "[OpenVR] [Mirror] Mirror view shared texture opened\n" );
-			}
-			else
-			{
-				XR_TRACE( "[OpenVR] [Error] [Mirror] Unexpected texture size %ix%i found\n", mirrorTextureDesc.Width, mirrorTextureDesc.Height );
-				m_pMirrorTexture = m_UnityTextures[0][0];
-				m_bIsIncorrectTexture = true;
-			}
-		}
-		else
-		{
-			XR_TRACE( "[OpenVR] [Error] [Mirror] Unable to open shared texture\n" );
-
-			// Release overlay view
-			if ( vr::VROverlayView() && m_overlayView.texture.handle )
-			{
-				vr::VROverlayView()->ReleaseOverlayView( &m_overlayView );
-				m_hOverlay = k_ulInvalidOverlayHandle;
-			}
-
-			m_bIsUsingCustomMirrorMode = false;
-			m_bIsSteamVRViewAvailable = false;
-		}
-	}
-
-	if ( GetCurrentMirrorMode() == kUnityXRMirrorBlitDistort )
-	{
-		if ( !m_bIsUsingRGB )
-		{
-			// TODO: Request Unity to have XRMirrorBlitDesc to support custom sRGB setting despite project setting
-			m_bOverlayFallback = true;
-			XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Project not using sRGB.\n" );
-		}
-		else if ( m_eActiveTextureType != vr::TextureType_DirectX )
-		{
-			m_bOverlayFallback = true;
-			XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Project not using DirectX.\n" );
-		}
-		else if ( !m_bIsSteamVRViewAvailable && !m_bIsUsingCustomMirrorMode )
-		{
-			m_nOpenVRMirrorAttempts++;
-			if ( m_nOpenVRMirrorAttempts >= k_nOpenVRMirrorAttemptsMax )
-			{
-				m_bOverlayFallback = true;
-				XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Could not enable SteamVR View.\n" );
-			}
-			else
-			{
-				XR_TRACE( "[OpenVR] [Error] [Mirror] Could not enable SteamVR View. Will retry...\n" );
-			}
-		}
-		else if ( m_bIsIncorrectTexture )
-		{
-			m_nOpenVRMirrorAttempts++;
-			if ( m_nOpenVRMirrorAttempts >= k_nOpenVRMirrorAttemptsMax )
-			{
-				m_bOverlayFallback = true;
-				XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Incorrect texture size.\n" );
-			}
-			else
-			{
-				XR_TRACE( "[OpenVR] [Error] [Mirror] Incorrect texture size. Will retry...\n" );
-			}
-		}
-
-		if ( m_bOverlayFallback )
-		{
-			// Fallback to left eye texture
-			SetMirrorMode( kUnityXRMirrorBlitLeftEye );
-			m_nPrevMirrorMode = kUnityXRMirrorBlitLeftEye;
-			m_pMirrorTexture = m_UnityTextures[0][0];
-			m_bIsSteamVRViewAvailable = false;
-
-			SetupMirror(); //setup with the left eye
-		}
+		SetupOverlayMirror();
 	}
 }
 
@@ -1309,6 +1142,217 @@ void *OpenVRDisplayProvider::GetNativeEyeTexture( int stage, int eye )
 	}
 
 	return m_pNativeColorTextures[stage][eye];
+}
+
+void OpenVRDisplayProvider::ReleaseOverlayPointers()
+{
+	#ifndef __linux__
+	m_pMirrorTextureDX = nullptr;
+	#endif
+}
+
+bool OpenVRDisplayProvider::HasOverlayPointer()
+{
+	#ifndef __linux__
+	return m_pMirrorTextureDX != nullptr;
+	#else
+	return false;
+	#endif
+}
+
+void OpenVRDisplayProvider::SetupOverlayMirror()
+{
+	#ifndef __linux__
+	// Acquire the SteamVR Display VR View overlay 
+	vr::EVROverlayError eOverlayError;
+	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && !m_bOverlayFallback && m_hOverlay == k_ulInvalidOverlayHandle && !m_bIsUsingCustomMirrorMode && vr::VROverlay() )
+	{
+		eOverlayError = vr::VROverlay()->FindOverlay( vr::k_pchHeadsetViewOverlayKey, &m_hOverlay );
+		if ( eOverlayError != vr::VROverlayError_None )
+		{
+			XR_TRACE( "[OpenVR] [Mirror] Failed to find the SteamVR Display VR View overlay [%i]\n", eOverlayError );
+			m_bIsUsingCustomMirrorMode = false;
+		}
+		else
+		{
+			XR_TRACE( "[OpenVR] [Mirror] Mirror overlay found [%i]\n", eOverlayError );
+		}
+	}
+
+	ID3D11Device *m_pD3D11Device;
+	if ( m_eActiveTextureType == vr::TextureType_DirectX )
+	{
+		// Grab the active render device
+		s_pProviderContext->interfaces->Get< IUnityGraphicsD3D11 >()->GetDevice();
+
+		// Create a native device handle for OpenVR
+		m_nativeDevice.eType = vr::DeviceType_DirectX11;
+		m_nativeDevice.handle = m_pD3D11Device;
+	}
+	else
+	{
+		m_nativeDevice.handle = nullptr;
+	}
+	
+	// Create a native device handle for OpenVR
+	m_nativeDevice.eType = vr::DeviceType_DirectX11;
+	m_nativeDevice.handle = m_pD3D11Device;
+
+	// Get the active overlay view - should be our scene application now at this stage
+	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && !m_bOverlayFallback && m_hOverlay != k_ulInvalidOverlayHandle && m_bIsUsingRGB && !m_bIsUsingCustomMirrorMode && vr::VRSystem() && vr::VROverlayView() )
+	{
+		// Grab the Overlay view for the SteamVR VR view
+		eOverlayError = vr::VROverlayView()->AcquireOverlayView( m_hOverlay, &m_nativeDevice, &m_overlayView, sizeof( m_overlayView ) );
+		if ( eOverlayError != vr::VROverlayError_None )
+		{
+			XR_TRACE( "[OpenVR] [Mirror] Unable to acquire the SteamVR Display VR View overlay [%i]\n", eOverlayError );
+			m_hOverlay = k_ulInvalidOverlayHandle;
+		}
+		else
+		{
+			XR_TRACE( "[OpenVR] [Mirror] Mirror view overlay acquired [%i]\n", eOverlayError );
+
+			if ( !m_overlayView.texture.handle )
+			{
+				XR_TRACE( "[OpenVR] [Mirror] No valid texture for the overlay view was found\n" );
+			}
+		}
+	}
+
+	if ( m_bIsUsingRGB									// Unity only supports RGB textures for the mirror mode in linear mode
+		&& m_nMirrorMode == kUnityXRMirrorBlitDistort	// kUnityXRMirrorBlitDistort is the SteamVR View
+		&& m_bIsHeadsetResolutionSet					// The headset resolution must be set before we attempt to open the shared texture
+		&& !m_bIsUsingCustomMirrorMode					// Check if the shared texture has already been opened
+		&& !m_bIsIncorrectTexture
+		&& m_overlayView.texture.handle
+		&& m_hOverlay != k_ulInvalidOverlayHandle
+		&& m_pD3D11Device
+		)
+	{
+		// Get current mirror resolution
+		if ( vr::VRHeadsetView() )
+		{
+			uint32_t nCurrentMirrorWidth, nCurrentMirrorHeight;
+			vr::VRHeadsetView()->GetHeadsetViewSize( &nCurrentMirrorWidth, &nCurrentMirrorHeight );
+			XR_TRACE( "[OpenVR] [Mirror] Mirror view set to %ix%i\n", nCurrentMirrorWidth, nCurrentMirrorHeight );
+		}
+
+		// Attempt to open shared texture
+		XR_TRACE( "[OpenVR] [Mirror] Attempting to open shared texture...\n" );
+		if ( SUCCEEDED( m_pD3D11Device->OpenSharedResource( m_overlayView.texture.handle, __uuidof( ID3D11Texture2D ), (void ** )& m_pMirrorTextureDX ) ) )
+		{
+			// Convert the overlay texture to a Texture2D
+			D3D11_TEXTURE2D_DESC mirrorTextureDesc;
+			m_pMirrorTextureDX->GetDesc( &mirrorTextureDesc );
+
+			UnityXRVector2 recommendedMirrorSize = GetRecommendedMirrorResolution();
+
+			// Check if it's the correct size
+			if ( mirrorTextureDesc.Width == recommendedMirrorSize.x )
+			{
+				UnityXRRenderTextureDesc pNativeTexture;
+
+				memset( &pNativeTexture, 0, sizeof( UnityXRRenderTextureDesc ) );
+				pNativeTexture.colorFormat = kUnityXRRenderTextureFormatRGBA32;
+				pNativeTexture.depthFormat = kUnityXRDepthTextureFormat24bitOrGreater;
+				pNativeTexture.depth.nativePtr = (void * )kUnityXRRenderTextureIdDontCare;
+
+				pNativeTexture.width = m_nEyeMirrorWidth;
+				pNativeTexture.height = m_nEyeMirrorHeight;
+				pNativeTexture.color.nativePtr = m_pMirrorTextureDX;
+				pNativeTexture.flags |= kUnityXRRenderTextureFlagsSRGB;
+
+				UnityXRRenderTextureId pSourceTextureId;
+				UnitySubsystemErrorCode eCreateTextureError = s_pXRDisplay->CreateTexture( s_DisplayHandle, &pNativeTexture, &pSourceTextureId );
+				if ( eCreateTextureError != kUnitySubsystemErrorCodeSuccess )
+				{
+					XR_TRACE( "[OpenVR] [Mirror] Unable to create a native texture to display in mirror mode [%i]\n", eCreateTextureError );
+					m_bIsUsingCustomMirrorMode = false;
+				}
+
+				// Use the SteamVR VR view as mirror if possible
+				m_mirrorRenderSubRect = { 0.0f, 0.0f, 1.0f, 1.0f };
+				m_pMirrorTexture = m_pSteamVRTextureId = pSourceTextureId;
+				m_bIsIncorrectTexture = false;
+				m_bIsUsingCustomMirrorMode = true;
+				m_bIsSteamVRViewAvailable = true;
+				XR_TRACE( "[OpenVR] [Mirror] Mirror view shared texture opened\n" );
+			}
+			else
+			{
+				XR_TRACE( "[OpenVR] [Error] [Mirror] Unexpected texture size %ix%i found\n", mirrorTextureDesc.Width, mirrorTextureDesc.Height );
+				m_pMirrorTexture = m_UnityTextures[0][0];
+				m_bIsIncorrectTexture = true;
+			}
+		}
+		else
+		{
+			XR_TRACE( "[OpenVR] [Error] [Mirror] Unable to open shared texture\n" );
+
+			// Release overlay view
+			if ( vr::VROverlayView() && m_overlayView.texture.handle )
+			{
+				vr::VROverlayView()->ReleaseOverlayView( &m_overlayView );
+				m_hOverlay = k_ulInvalidOverlayHandle;
+			}
+
+			m_bIsUsingCustomMirrorMode = false;
+			m_bIsSteamVRViewAvailable = false;
+		}
+	}
+
+	if ( GetCurrentMirrorMode() == kUnityXRMirrorBlitDistort )
+	{
+		if ( !m_bIsUsingRGB )
+		{
+			// TODO: Request Unity to have XRMirrorBlitDesc to support custom sRGB setting despite project setting
+			m_bOverlayFallback = true;
+			XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Project not using sRGB.\n" );
+		}
+		else if ( m_eActiveTextureType != vr::TextureType_DirectX )
+		{
+			m_bOverlayFallback = true;
+			XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Project not using DirectX.\n" );
+		}
+		else if ( !m_bIsSteamVRViewAvailable && !m_bIsUsingCustomMirrorMode )
+		{
+			m_nOpenVRMirrorAttempts++;
+			if ( m_nOpenVRMirrorAttempts >= k_nOpenVRMirrorAttemptsMax )
+			{
+				m_bOverlayFallback = true;
+				XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Could not enable SteamVR View.\n" );
+			}
+			else
+			{
+				XR_TRACE( "[OpenVR] [Error] [Mirror] Could not enable SteamVR View. Will retry...\n" );
+			}
+		}
+		else if ( m_bIsIncorrectTexture )
+		{
+			m_nOpenVRMirrorAttempts++;
+			if ( m_nOpenVRMirrorAttempts >= k_nOpenVRMirrorAttemptsMax )
+			{
+				m_bOverlayFallback = true;
+				XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Incorrect texture size.\n" );
+			}
+			else
+			{
+				XR_TRACE( "[OpenVR] [Error] [Mirror] Incorrect texture size. Will retry...\n" );
+			}
+		}
+
+		if ( m_bOverlayFallback )
+		{
+			// Fallback to left eye texture
+			SetMirrorMode( kUnityXRMirrorBlitLeftEye );
+			m_nPrevMirrorMode = kUnityXRMirrorBlitLeftEye;
+			m_pMirrorTexture = m_UnityTextures[0][0];
+			m_bIsSteamVRViewAvailable = false;
+
+			SetupMirror(); //setup with the left eye
+		}
+	}
+	#endif
 }
 
 

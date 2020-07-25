@@ -149,6 +149,12 @@ private:
 	/// @return The device native texture that needs to be sent to the compositor
 	void *GetNativeEyeTexture( int stage, int eye );
 
+	void ReleaseOverlayPointers();
+
+	bool HasOverlayPointer();
+
+	void SetupOverlayMirror();
+
 	/// The occlusion mesh (hidden area mesh) handle for the left eye. 0 if none.
 	UnityXROcclusionMeshId m_pOcclusionMeshLeftEye = 0;
 
@@ -179,8 +185,10 @@ private:
 	/// OpenVR Texture type in use (coincides with m_eActiveRenderer)
 	vr::ETextureType m_eActiveTextureType = vr::TextureType_DirectX;
 
+	#ifndef __linux__
 	/// DirectX Mirror Texture
 	ID3D11Texture2D *m_pMirrorTextureDX;
+	#endif
 
 	/// The recommended widths and heights
 	uint32_t m_nEyeWidth, m_nEyeHeight, m_nEyeMirrorWidth, m_nEyeMirrorHeight, m_nRenderMirrorWidth, m_nRenderMirrorHeight;
