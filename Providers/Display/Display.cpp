@@ -9,6 +9,10 @@
 #include "ProviderInterface/XRMath.h"
 #include "UserProjectSettings.h"
 
+#ifdef __linux__
+#include <cstring>
+#endif
+
 // Interfaces
 static IUnityXRDisplayInterface *s_pXRDisplay = nullptr;
 static IUnityXRStats *s_pXRStats;
@@ -1292,7 +1296,6 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 				m_hOverlay = k_ulInvalidOverlayHandle;
 			}
 
-	#else
 			m_bIsUsingCustomMirrorMode = false;
 			m_bIsSteamVRViewAvailable = false;
 		}
