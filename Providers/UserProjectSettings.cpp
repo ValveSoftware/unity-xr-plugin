@@ -132,7 +132,7 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 		#ifndef __linux__
 		projectDirectoryName = std::string( exePathFilename ) + "_Data\\";
 		#else
-		projectDirectoryName = RemoveExtension( std::string( basename( fullExePath ) ) + "_Data/" );
+		projectDirectoryName = RemoveFileExtension( std::string( basename( fullExePath ) ) + "_Data/" );
 		#endif
 
 		std::string projectDirectoryPath = basePath + projectDirectoryName;
@@ -198,7 +198,7 @@ void UserProjectSettings::Trim( std::string &s )
 	s = std::string( it, rit.base() );
 }
 
-std::string UserProjectSettings::RemoveExtension( const std::string& filename ) 
+std::string UserProjectSettings::RemoveFileExtension( const std::string& filename ) 
 {
     size_t lastdot = filename.find_last_of( "." );
     if ( lastdot == std::string::npos ) 
