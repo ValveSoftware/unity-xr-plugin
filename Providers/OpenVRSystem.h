@@ -4,7 +4,7 @@
 #include "Singleton.h"
 #include "ProviderInterface/IUnityXRPreInit.h"
 
-extern "C" typedef void( __stdcall *TickCallback )( int );
+extern "C" typedef void( *TickCallback )( int );
 
 class OpenVRSystem : public Singleton<OpenVRSystem>
 {
