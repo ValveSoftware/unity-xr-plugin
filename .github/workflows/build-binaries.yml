@@ -57,6 +57,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         
   build-linux:
+    needs: build-windows
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
