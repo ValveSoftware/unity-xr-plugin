@@ -76,7 +76,7 @@ jobs:
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git add -u
       
-      name: Commit modified binaries (linux)
+    - name: Commit modified binaries (linux)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: |
         git config --local user.email "action@github.com"
