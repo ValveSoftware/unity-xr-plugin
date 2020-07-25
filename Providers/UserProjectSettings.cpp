@@ -16,6 +16,10 @@
 #include <sys/stat.h>
 #include <algorithm>
 
+#ifdef __linux__
+#define MAX_PATH PATH_MAX
+#endif
+
 typedef struct _UserDefinedSettings
 {
 	unsigned short stereoRenderingMode = 0;
