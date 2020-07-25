@@ -15,6 +15,7 @@ jobs:
       with:
         persist-credentials: false
         fetch-depth: 0
+    - run: git checkout HEAD^
 
     - name: Generate build files (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
@@ -65,6 +66,7 @@ jobs:
       with:
         persist-credentials: false
         fetch-depth: 0
+    - run: git checkout HEAD^
         
     - name: Generate build files (linux)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
