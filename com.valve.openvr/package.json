@@ -1,9 +1,9 @@
 {
   "name": "com.valvesoftware.unity.openvr",
   "displayName": "OpenVR XR Plugin",
-  "version": "1.0.0-preview.10",
+  "version": "1.0.0-preview.11",
   "unity": "2019.3",
-  "description": "Provides rendering support for OpenVR devices in Unity XR.",
+  "description": "Provides rendering support for OpenVR devices in Unity XR. For input please see: https://github.com/ValveSoftware/steamvr_unity_plugin",
   "keywords": [
     "openvr",
     "xr",

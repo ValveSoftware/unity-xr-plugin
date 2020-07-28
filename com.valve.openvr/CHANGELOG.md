@@ -4,6 +4,18 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.0.0-preview.11] - 2020-07-28
+### Changed 
+- Misc fixes to support linux builds. Linux is still WIP but these fixes affect the windows builds too.
+
+## [1.0.0-preview.10] - 2020-07-22
+### Changed 
+- Fixing gitignore for some pdb meta files
+
+## [1.0.0-preview.9] - 2020-07-22
+### Changed 
+- Statically linking vs debug runtime so people without vs can use the debug dlls
+
 ## [1.0.0-preview.8] - 2020-07-22
 ### Changed 
 - Adding supporting debug dlls
