@@ -47,6 +47,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   add_definitions(-D_WIN32)
+  add_compile_options("/Zi")
   set(OPENVR_API_NAME "openvr_api")
   set(COMPILED_LIB_TYPE "dll")
   set(IMPORT_LIB_TYPE "lib")
@@ -63,7 +64,7 @@ if(MSVC)
     )
 endif()
 
-message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit")
+message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit ${MSVC_VERSION}")
 
 # XRSDKOpenVR
 message(STATUS "Adding XRSDKOpenVR...")
@@ -142,22 +143,22 @@ target_link_libraries(XRSDKOpenVR PUBLIC openvr_api)
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	# Post-Build - Copy OpenVR api
 	add_custom_command(TARGET XRSDKOpenVR POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy
+			COMMAND ${CMAKE_COMMAND} -E copy
 					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
 					${BINARY_PATH}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
 
-				COMMAND ${CMAKE_COMMAND} -E copy
+			COMMAND ${CMAKE_COMMAND} -E copy
 					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}.sig
 					${BINARY_PATH}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}.sig
 			
-				COMMAND ${CMAKE_COMMAND} -E copy
-						${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
-						${BINARY_PATH}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
+			COMMAND ${CMAKE_COMMAND} -E copy
+					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
+					${BINARY_PATH}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
 			)
 else()
 	# Post-Build - Copy OpenVR api
 	add_custom_command(TARGET XRSDKOpenVR POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy
+			COMMAND ${CMAKE_COMMAND} -E copy
 					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
 					${BINARY_PATH}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
 			
