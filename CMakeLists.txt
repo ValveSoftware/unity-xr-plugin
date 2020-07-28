@@ -167,3 +167,6 @@ else()
 					${BINARY_PATH}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
 			)
 endif()
+
+FILE(GLOB var "${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/*.pdb")
+message(STATUS ${var})
