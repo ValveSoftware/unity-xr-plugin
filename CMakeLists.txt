@@ -46,6 +46,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif()
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  FILE(GLOB PDBFILES LIST_DIRECTORIES false ${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/*.pdb)
+	
   add_definitions(-D_WIN32)
   add_compile_options("/Zi")
   set(OPENVR_API_NAME "openvr_api")
@@ -64,7 +66,7 @@ if(MSVC)
     )
 endif()
 
-message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit ${MSVC_VERSION}")
+message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit $PDBFILES")
 
 # XRSDKOpenVR
 message(STATUS "Adding XRSDKOpenVR...")
@@ -154,6 +156,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 			COMMAND ${CMAKE_COMMAND} -E copy
 					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
 					${BINARY_PATH}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
+
+			#COMMAND ${CMAKE_COMMAND} -E copy
+            #	    ${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/${PDBFILE}
+            #    	${BINARY_PATH}/${PDBFILE}
 			)
 else()
 	# Post-Build - Copy OpenVR api
@@ -167,6 +173,3 @@ else()
 					${BINARY_PATH}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
 			)
 endif()
-
-FILE(GLOB var "${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/*.pdb")
-message(STATUS ${var})
