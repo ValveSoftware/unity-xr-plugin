@@ -2,7 +2,7 @@ name: Build binaries
 
 on:
   push:
-    branches: [ linux ]
+    branches: [ master ]
     paths-ignore:
       - com.valve.openvr/Runtime/x64/**
       - com.valve.openvr/Runtime/x86/**
@@ -59,7 +59,7 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: linux
+        branch: master
         
   build-linux:
     needs: build-windows
@@ -97,4 +97,4 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: linux
+        branch: master
