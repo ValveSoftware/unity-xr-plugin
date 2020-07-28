@@ -70,7 +70,7 @@ if(MSVC)
     )
 endif()
 
-message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit ${PDBFILES}")
+message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit")
 
 # XRSDKOpenVR
 message(STATUS "Adding XRSDKOpenVR...")

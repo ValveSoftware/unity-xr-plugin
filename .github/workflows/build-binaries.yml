@@ -84,7 +84,9 @@ jobs:
     
     - name: Add modified binaries (x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: git add -u
+      run: |
+        git add -u
+        set -e
       
     - name: Commit modified binaries (linux)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
@@ -92,6 +94,7 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git commit -m "Github Actions: New linux binaries" -a
+        set -e
 
     - name: Push modified binaries
       uses: ad-m/github-push-action@master
