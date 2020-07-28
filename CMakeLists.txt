@@ -44,7 +44,15 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif()
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  if(${MSVC_VERSION} VERSION_LESS 1919)
+  	set(PDBFILE "vc141.pdb")
+  else()
+  	set(PDBFILE "vc142.pdb")
+  endif()
+
+
   add_definitions(-D_WIN32)
+  add_compile_options("/Zi")
   set(OPENVR_API_NAME "openvr_api")
   set(COMPILED_LIB_TYPE "dll")
   set(IMPORT_LIB_TYPE "lib")
@@ -127,7 +135,7 @@ set_target_properties(openvr_api PROPERTIES IMPORTED_IMPLIB ${CMAKE_SOURCE_DIR}/
 set_target_properties(openvr_api PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(XRSDKOpenVR PUBLIC openvr_api)
 
-# Post-Build - Copy OpenVR api
+# Post-Build - Copy OpenVR api and release pdb
 add_custom_command(TARGET XRSDKOpenVR POST_BUILD
         	COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
@@ -140,4 +148,8 @@ add_custom_command(TARGET XRSDKOpenVR POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
                 ${BINARY_PATH}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
+
+		COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/${PDBFILE}
+                ${BINARY_PATH}/${PDBFILE}
 		)
