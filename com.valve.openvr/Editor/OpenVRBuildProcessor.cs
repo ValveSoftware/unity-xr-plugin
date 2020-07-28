@@ -17,8 +17,8 @@ namespace Unity.XR.OpenVR
     {
         private readonly string[] runtimePluginNames = new string[]
         {
-        "XRSDKOpenVR.dll",
-        "openvr_api.dll",
+        "XRSDKOpenVR",
+        "openvr_api",
         };
 
         public int callbackOrder { get; set; }
