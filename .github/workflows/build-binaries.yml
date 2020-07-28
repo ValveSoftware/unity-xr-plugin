@@ -85,6 +85,7 @@ jobs:
     - name: Add modified binaries (x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: |
+        set +e
         git add -u
         set -e
       
@@ -93,6 +94,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
+        set +e
         git commit -m "Github Actions: New linux binaries" -a
         set -e
 
