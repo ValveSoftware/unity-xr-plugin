@@ -26,7 +26,7 @@ jobs:
         
     - name: Build binaries (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: cmake --build . --target ALL_BUILD --config Debug
+      run: cmake --build . --target ALL_BUILD --config Release
     
     - name: Add modified binaries (x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
@@ -42,7 +42,7 @@ jobs:
 
     - name: Build binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: cmake --build . --target ALL_BUILD --config Debug
+      run: cmake --build . --target ALL_BUILD --config Release
     
     - name: Add modified binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
