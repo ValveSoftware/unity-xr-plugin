@@ -1183,7 +1183,7 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 	if ( m_eActiveTextureType == vr::TextureType_DirectX )
 	{
 		// Grab the active render device
-		s_pProviderContext->interfaces->Get< IUnityGraphicsD3D11 >()->GetDevice();
+		m_pD3D11Device = s_pProviderContext->interfaces->Get< IUnityGraphicsD3D11 >()->GetDevice();
 
 		// Create a native device handle for OpenVR
 		m_nativeDevice.eType = vr::DeviceType_DirectX11;
@@ -1192,6 +1192,7 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 	else
 	{
 		m_nativeDevice.handle = nullptr;
+		m_pD3D11Device = nullptr;
 	}
 	
 	// Create a native device handle for OpenVR
