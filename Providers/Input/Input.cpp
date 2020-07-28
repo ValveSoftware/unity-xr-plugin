@@ -189,7 +189,7 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::Tick( UnitySubs
 			s_Input->InputSubsystem_DeviceConnected( handle, deviceIter->deviceId );
 			deviceIter->deviceChangeForNextUpdate = EDeviceStatus::None;
 			deviceIter->deviceStatus = EDeviceStatus::Connect;
-			XR_TRACE( "[OpenVR] Device connected (status change). Handle: %d. DeviceID: %d\n", handle, deviceIter->deviceId );
+			XR_TRACE( "[OpenVR] Device connected (status change). Handle: %d. OpenVRIndex: %d. UnityID: %d\n", handle, deviceIter->openVRDeviceIndex, deviceIter->deviceId );
 		}
 
 		if ( deviceIter->deviceChangeForNextUpdate == EDeviceStatus::Disconnect )
@@ -197,7 +197,7 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::Tick( UnitySubs
 			if ( deviceIter->deviceStatus == EDeviceStatus::Connect )
 			{
 				s_Input->InputSubsystem_DeviceDisconnected( handle, deviceIter->deviceId );
-				XR_TRACE( "[OpenVR] Device disconnected (status change). Handle: %d. DeviceID: %d\n", handle, deviceIter->deviceId );
+				XR_TRACE( "[OpenVR] Device disconnected (status change). Handle: %d. OpenVRIndex: %d. UnityID: %d\n", handle, deviceIter->openVRDeviceIndex, deviceIter->deviceId );
 			}
 			deviceIter = m_TrackedDevices.erase( deviceIter );
 		}
@@ -337,7 +337,8 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::FillDeviceDefin
 	if ( inputProfileSize == 0 )
 		return kUnitySubsystemErrorCodeFailure;
 	std::string inputProfileName = std::string( inputProfileBuffer );
-	XR_TRACE( "[OpenVR] Found controller id:(%d) with input profile:(%s)\n", deviceId, inputProfileName.c_str() );
+
+	XR_TRACE( "[OpenVR] Found device OpenVRIndex:(%d) UnityIndex:(%d) with input profile:(%s) and name: (%s)\n", ( *device )->openVRDeviceIndex, deviceId, inputProfileName.c_str(), deviceName.value().c_str() );
 
 	s_Input->DeviceDefinition_SetName( deviceDefinition, deviceName->c_str() );
 	s_Input->DeviceDefinition_SetCharacteristics( deviceDefinition, ( *device )->characteristics );
@@ -880,6 +881,8 @@ UnityXRInternalInputDeviceId OpenVRInputProvider::GenerateUniqueDeviceId() const
 	for ( auto device : m_TrackedDevices )
 		sortedDeviceIds.emplace_back( device.deviceId );
 
+	std::sort( sortedDeviceIds.begin(), sortedDeviceIds.end() ); //wasn't necessarily sorted. 
+
 	UnityXRInternalInputDeviceId uniqueId = 0;
 	for ( auto deviceId : sortedDeviceIds )
 	{
@@ -904,7 +907,7 @@ void OpenVRInputProvider::GfxThread_UpdateConnectedDevices( const vr::TrackedDev
 			{
 				( *existingDevice )->deviceChangeForNextUpdate = EDeviceStatus::Disconnect;
 
-				XR_TRACE( "[OpenVR] Device disconnecting (disconnection reported). DeviceIndex: %d\n", openVRTrackedDeviceIndex );
+				XR_TRACE( "[OpenVR] Device disconnecting (disconnection reported). OpenVRIndex: %d. UnityID: %d\n", openVRTrackedDeviceIndex, ( *existingDevice )->deviceId );
 			}
 		}
 		else
@@ -917,11 +920,12 @@ void OpenVRInputProvider::GfxThread_UpdateConnectedDevices( const vr::TrackedDev
 				{
 					UnityXRInternalInputDeviceId newDeviceId = GenerateUniqueDeviceId();
 					m_TrackedDevices.emplace_back( openVRTrackedDeviceIndex, newDeviceId, characteristics );
+					XR_TRACE( "[OpenVR] Device connecting (status change). OpenVRIndex: %d. UnityID: %d\n", openVRTrackedDeviceIndex, newDeviceId );
 				}
 			}
 			else if ( ( *existingDevice )->characteristics != characteristics ) // Need to check to see if characteristics changed, if so disconnect and allow reconnection next frame
 			{
-				XR_TRACE( "[OpenVR] Device disconnecting (characteristics change). DeviceIndex: %d\n", openVRTrackedDeviceIndex );
+				XR_TRACE( "[OpenVR] Device disconnecting (characteristics change). OpenVRIndex: %d. UnityID: %d\n", openVRTrackedDeviceIndex, ( *existingDevice )->deviceId );
 				( *existingDevice )->deviceChangeForNextUpdate = EDeviceStatus::Disconnect;
 			}
 		}
