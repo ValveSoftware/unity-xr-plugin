@@ -11,9 +11,24 @@
 #else
 #include <limits.h>
 #include <unistd.h>     //readlink
+#include <string.h>
+#include <libgen.h>
 #endif
 #include <sys/stat.h>
 #include <algorithm>
+
+#ifdef __linux__
+#define MAX_PATH PATH_MAX
+#define _getcwd getcwd
+char *strcpy_s( char *dest, const char *src )
+{
+	return strcpy( dest, src );
+}
+char *strcpy_s( char *dest, unsigned long maxCharacters, const char *src )
+{
+	return strncpy( dest, src, maxCharacters );
+}
+#endif
 
 typedef struct _UserDefinedSettings
 {
@@ -34,7 +49,12 @@ const std::string kEditorAppKey = "EditorAppKey:";
 const std::string kActionManifestFilePath = "ActionManifestFileRelativeFilePath:";
 const std::string kMirrorViewMode = "MirrorView:";
 
+#ifdef __linux__
+const std::string kStreamingAssetsFilePath = "StreamingAssets/SteamVR/OpenVRSettings.asset";
+#else
 const std::string kStreamingAssetsFilePath = "StreamingAssets\\SteamVR\\OpenVRSettings.asset";
+#endif
+
 const std::string kVSDebugPath = "..\\..\\";
 
 
@@ -98,9 +118,13 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 	char exePathFilename[MAX_PATH];
 	char exePathExtension[MAX_PATH];
 
+	#ifndef __linux__
 	_splitpath_s( fullExePath, exePathDrive, exePathDirectory, exePathFilename, exePathExtension );
 
 	std::string basePath = std::string( exePathDrive ) + std::string( exePathDirectory );
+	#else
+	std::string basePath = std::string( dirname( fullExePath ) );
+	#endif
 
 	if ( !bAddDataDirectory )
 	{
@@ -108,16 +132,21 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 	}
 	else
 	{
-		std::string projectDirectoryName = std::string( exePathFilename ) + "_Data\\";
-
+		std::string projectDirectoryName;
+		
+		#ifndef __linux__
+		projectDirectoryName = std::string( exePathFilename ) + "_Data\\";
 		std::string projectDirectoryPath = basePath + projectDirectoryName;
 		if ( !DirectoryExists( projectDirectoryPath.c_str() ) )
 		{
 			//check for the path it might be in if we've made a vs debug build
 			projectDirectoryPath = basePath + kVSDebugPath + projectDirectoryName;
 		}
-
 		return projectDirectoryPath;
+		#else
+		projectDirectoryName = RemoveFileExtension( std::string( basename( fullExePath ) ) + "_Data/" );
+		return basePath + projectDirectoryName;
+		#endif
 	}
 }
 
@@ -171,6 +200,14 @@ void UserProjectSettings::Trim( std::string &s )
 		rit++;
 
 	s = std::string( it, rit.base() );
+}
+
+std::string UserProjectSettings::RemoveFileExtension( const std::string& filename ) 
+{
+    size_t lastdot = filename.find_last_of( "." );
+    if ( lastdot == std::string::npos ) 
+		return filename;
+    return filename.substr( 0, lastdot ); 
 }
 
 EVRStereoRenderingModes UserProjectSettings::GetStereoRenderingMode()

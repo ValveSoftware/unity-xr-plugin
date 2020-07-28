@@ -3,6 +3,10 @@
 #include "UnityXRTypes.h"
 #include <limits>
 
+#ifdef __linux__
+#include <cmath>
+#endif
+
 #define EPSILON 0.00001F
 
 using namespace std;
@@ -106,7 +110,10 @@ struct XRQuaternion : public UnityXRVector4
 
 	friend float SqrMagnitude( const XRQuaternion &q );
 	friend float Magnitude( const XRQuaternion &q );
-	friend XRQuaternion Normalize( const XRQuaternion &q ) { return 1.0f / Magnitude( q ) * q; }
+	friend XRQuaternion Normalize( const XRQuaternion &q ) 
+	{ 
+		return 1.0f / Magnitude( q ) * q; 
+	}
 
 	XRQuaternion &operator+=( const XRQuaternion &aQuat );
 	XRQuaternion &operator-=( const XRQuaternion &aQuat );

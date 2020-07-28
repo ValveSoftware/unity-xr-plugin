@@ -8,64 +8,93 @@ on:
       - com.valve.openvr/Runtime/x86/**
 
 jobs:
-  build:
-
+  build-windows:
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v2
       with:
         persist-credentials: false
         fetch-depth: 0
-        
-    - name: Generate build files
+    
+    - name: Pull latest
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git pull
+
+    - name: Generate build files (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake -G "Visual Studio 16 2019" .
-      
-    - name: Build binaries
+        
+    - name: Build binaries (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake --build . --target ALL_BUILD --config Debug
     
-    - name: Add modified binaries
+    - name: Add modified binaries (x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git add -u
-      
-    - name: Commit modified binaries
-      working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git commit -m "Github Actions: New 64-bit binaries" -a
-
-    - name: Push modified binaries
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Clean 64-bit build files
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git clean -d -f -x
 
-    - name: Generate build files
+    - name: Generate build files (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake -G "Visual Studio 16 2019" -A Win32 .
 
-    - name: Build binaries
+    - name: Build binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: cmake --build . --target ALL_BUILD --config Debug
     
-    - name: Add modified binaries
+    - name: Add modified binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: git add -u
       
-    - name: Commit modified binaries
+    - name: Push modified binaries (windows)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git commit -m "Github Actions: New 32-bit binaries" -a
+        git commit -m "Github Actions: New windows binaries" -a
 
     - name: Push modified binaries
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: master
+        
+  build-linux:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
+    
+    - name: Pull latest
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git pull
+        
+    - name: Generate build files (linux)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake .
+      
+    - name: Build binaries (linux)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: make
+    
+    - name: Add modified binaries (x64)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: git add -u
+      
+    - name: Commit modified binaries (linux)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git commit -m "Github Actions: New linux binaries" -a
+
+    - name: Push modified binaries
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: master

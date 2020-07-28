@@ -195,7 +195,7 @@ private:
 	UnitySubsystemErrorCode GetHapticCapabilities( UnityXRInternalInputDeviceId deviceId, UnityXRHapticCapabilities *capabilities );
 	UnityXRInternalInputDeviceId GenerateUniqueDeviceId() const;
 	void GfxThread_UpdateConnectedDevices( const vr::TrackedDevicePose_t *currentDevicePoses );
-	static UnityXRMatrix4x4 OpenVRInputProvider::GetEyeTransform( EHMDEye eye );
+	static UnityXRMatrix4x4 GetEyeTransform( EHMDEye eye );
 	UnitySubsystemErrorCode Internal_UpdateDeviceState( UnitySubsystemHandle handle, const OpenVRDevice &device,
 		const vr::TrackedDevicePose_t &trackingPose, UnityXRInputDeviceState *deviceState, bool updateNonTrackingData );
 	static void OpenVRToUnityTracking( const vr::TrackedDevicePose_t &openVRPose, std::optional<UnityXRMatrix4x4> postTransform,
