@@ -31,9 +31,7 @@ jobs:
     - name: Add modified binaries (x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: |
-        set +e
         git add -u
-        set -e
 
     - name: Clean 64-bit build files
       working-directory: ${{runner.workspace}}/unity-xr-plugin
@@ -50,18 +48,15 @@ jobs:
     - name: Add modified binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: |
-        set +e
         git add -u
-        set -e
       
     - name: Push modified binaries (windows)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        set +e
         git commit -m "Github Actions: New windows binaries" -a
-        set -e
+        $global:LASTEXITCODE = 0
 
     - name: Push modified binaries
       uses: ad-m/github-push-action@master
