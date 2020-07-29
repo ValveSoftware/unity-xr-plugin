@@ -19,6 +19,7 @@ For now, to get access to controllers and other forms of input you will need to 
   * OpenVR Mirror View Mode requires use of Linear Color Space (Project Settings > Player > Other Settings > (Rendering) Color Space)
   * In certain use cases, changing RenderScale and ViewPortScale in runtime causes some performance spikes
   * Vulkan currently only supported in Multi pass stereo rendering mode 
+  * In some circumstances the unity console will show errors on start saying "screen position out of view frustrum". This should not impact visuals.
 
 
 ## Bug reports:

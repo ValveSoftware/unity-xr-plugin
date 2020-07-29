@@ -19,6 +19,7 @@ namespace Unity.XR.OpenVR
         {
         "XRSDKOpenVR",
         "openvr_api",
+        "vc14",
         };
 
         public int callbackOrder { get; set; }
