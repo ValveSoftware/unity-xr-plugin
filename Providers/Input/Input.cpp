@@ -888,6 +888,8 @@ UnityXRInternalInputDeviceId OpenVRInputProvider::GenerateUniqueDeviceId() const
 	{
 		if ( deviceId == uniqueId )
 			uniqueId++;
+		else
+			break;
 	}
 
 	return uniqueId;

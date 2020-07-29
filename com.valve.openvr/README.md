@@ -10,7 +10,7 @@ There is some brief documentation included with this plugin at /Documentation~/c
 
 As part of our commitment to [OpenXR](https://store.steampowered.com/newshub/app/250820/view/2396425843528787269) we will begin targeting the OpenXR API in future versions of our game engine plugins.
 
-For now, to get access to controllers and other forms of input you will need to install the SteamVR Unity Plugin. This can be found at (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b3).
+For now, to get access to controllers and other forms of input you will need to install the SteamVR Unity Plugin. This can be found at (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b4).
 
 
 ## Known Issues:
