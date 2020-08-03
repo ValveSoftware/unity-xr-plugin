@@ -10,16 +10,15 @@ There is some brief documentation included with this plugin at /Documentation~/c
 
 As part of our commitment to [OpenXR](https://store.steampowered.com/newshub/app/250820/view/2396425843528787269) we will begin targeting the OpenXR API in future versions of our game engine plugins.
 
-For now, to get access to controllers and other forms of input you will need to install the SteamVR Unity Plugin. This can be found at (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b4).
+For now, to get access to controllers and other forms of input you will need to install the latest SteamVR Unity Plugin. This can be found on the Unity Asset Store (https://assetstore.unity.com/packages/tools/integration/steamvr-plugin-32647) or GitHub (https://github.com/ValveSoftware/steamvr_unity_plugin/releases).
 
 
 ## Known Issues:
 * Display Provider
+  * In some circumstances the unity console will show errors on start saying "screen position out of view frustrum". This should not impact visuals.
   * OpenVR Mirror View Mode (default) can cause black screens in the game view. Please send us bug reports if this happens.
   * OpenVR Mirror View Mode requires use of Linear Color Space (Project Settings > Player > Other Settings > (Rendering) Color Space)
-  * In certain use cases, changing RenderScale and ViewPortScale in runtime causes some performance spikes
-  * Vulkan currently only supported in Multi pass stereo rendering mode 
-  * In some circumstances the unity console will show errors on start saying "screen position out of view frustrum". This should not impact visuals.
+
 
 
 ## Bug reports:
@@ -49,8 +48,8 @@ For now, to get access to controllers and other forms of input you will need to 
 
 
 ### SteamVR Input System:
-* Install SteamVR Unity Plugin v2.6.0b2 (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b3)
-* It should install the OpenVR XR API package automatically for 2020.1+ for 2019.3/4 you’ll need to add it with the instructions above.
+* Install SteamVR Unity Plugin v2.6.1+ from the Asset Store (https://assetstore.unity.com/packages/tools/integration/steamvr-plugin-32647) or GitHub (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/)
+* It will install the OpenVR XR API package automatically for 2020.1+ for 2019.3/4 you’ll need to add it with the instructions above.
 * Open the SteamVR Input window (Window -> SteamVR Input)
 * Accept the default json
 * Click Save and Generate
