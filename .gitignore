@@ -78,3 +78,6 @@ _deps
 *.vpc
 *.vpc.sentinel
 *.vpc_crc
+
+# VS Code
+.vscode/
