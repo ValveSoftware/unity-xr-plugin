@@ -1,5 +1,6 @@
 //
 // File: vk_layer.h
+// SPDX-License-Identifier: Apache-2.0
 //
 /*
  * Copyright (c) 2015-2017 The Khronos Group Inc.

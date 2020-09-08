@@ -1,3 +1,8 @@
+# Copyright (c) 2020, Valve Software
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_SUPPRESS_REGENERATION true)
 project(unity_xr_openvr_plugin)

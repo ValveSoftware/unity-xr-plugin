@@ -1,3 +1,5 @@
+// Copyright © 2019 Unity Technologies ApS
+// SPDX-License-Identifier: LicenseRef-Unity-Companion-License
 #pragma once
 
 #include "UnityXRTypes.h"

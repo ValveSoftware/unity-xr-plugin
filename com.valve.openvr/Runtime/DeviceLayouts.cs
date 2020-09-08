@@ -1,3 +1,7 @@
+// Copyright (c) 2020, Valve Software
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 ﻿#if ENABLE_VR && UNITY_INPUT_SYSTEM && !PACKAGE_DOCS_GENERATION
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;

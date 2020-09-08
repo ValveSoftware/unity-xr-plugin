@@ -1,5 +1,6 @@
 //
 // File: vk_sdk_platform.h
+// SPDX-License-Identifier: Apache-2.0
 //
 /*
  * Copyright (c) 2015-2016 The Khronos Group Inc.

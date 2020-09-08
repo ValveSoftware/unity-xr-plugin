@@ -1,3 +1,7 @@
+// Copyright (c) 2020, Valve Software
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
