@@ -16,20 +16,20 @@
 /// LogType definition.
 typedef enum XRLogType
 {
-	/// LogType used for Errors.
-	kXRLogTypeError = 0,
-	/// LogType used for Asserts. (These indicate an error inside Unity itself.)
-	kXRLogTypeAssert = 1,
-	/// LogType used for Warnings.
-	kXRLogTypeWarning = 2,
-	/// LogType used for regular log messages.
-	kXRLogTypeLog = 3,
-	/// LogType used for Exceptions.
-	kXRLogTypeException = 4,
-	/// LogType used for Debug.
-	kXRLogTypeDebug = 5,
-	///
-	kXRLogTypeNumLevels
+    /// LogType used for Errors.
+    kXRLogTypeError = 0,
+    /// LogType used for Asserts. (These indicate an error inside Unity itself.)
+    kXRLogTypeAssert = 1,
+    /// LogType used for Warnings.
+    kXRLogTypeWarning = 2,
+    /// LogType used for regular log messages.
+    kXRLogTypeLog = 3,
+    /// LogType used for Exceptions.
+    kXRLogTypeException = 4,
+    /// LogType used for Debug.
+    kXRLogTypeDebug = 5,
+    ///
+    kXRLogTypeNumLevels
 } XRLogType;
 
 
@@ -69,14 +69,14 @@ typedef enum XRLogType
     XR_TRACE_DEBUG(XR_TRACE_PTR, __VA_ARGS__)
 
 /// Interface to allow providers to  trace to the Unity console.
-UNITY_DECLARE_INTERFACE( IUnityXRTrace )
+UNITY_DECLARE_INTERFACE(IUnityXRTrace)
 {
-	/// Log a message to the unity log.
-	///
-	/// @param[in] logType type of log
-	/// @param[in] message message to log
-	void( UNITY_INTERFACE_API * Trace )( XRLogType logType, const char *message, ... );
+    /// Log a message to the unity log.
+    ///
+    /// @param[in] logType type of log
+    /// @param[in] message message to log
+    void(UNITY_INTERFACE_API * Trace)(XRLogType logType, const char* message, ...);
 };
 
 
-UNITY_REGISTER_INTERFACE_GUID( 0xC633A7C9398B4A95ULL, 0xC225399ED5A2328FULL, IUnityXRTrace );
+UNITY_REGISTER_INTERFACE_GUID(0xC633A7C9398B4A95ULL, 0xC225399ED5A2328FULL, IUnityXRTrace);

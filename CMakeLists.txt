@@ -92,6 +92,7 @@ add_library(XRSDKOpenVR SHARED
 		${CMAKE_SOURCE_DIR}/CommonHeaders/OpenVR/openvr.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/OpenVR/openvr_driver.h
 
+		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRAudio.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityEventQueue.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityGraphics.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityGraphicsD3D11.h
@@ -103,6 +104,7 @@ add_library(XRSDKOpenVR SHARED
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityRenderingExtensions.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityShaderCompilerAccess.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRDisplay.h
+		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRDisplayShadingRateExt.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRInput.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRMeshing.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRPreInit.h

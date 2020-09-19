@@ -7,7 +7,7 @@
 #pragma once
 #if UNITY
 #include "Runtime/PluginInterface/Headers/IUnityInterface.h"
-#include "Modules/XR/ProviderInterface/UnitySubsystemTypes.h"
+#include "Modules/XR/ProviderInterface/UnityXRSubsystemTypes.h"
 #else
 #include "IUnityInterface.h"
 #include "UnitySubsystemTypes.h"
@@ -25,12 +25,12 @@
 /// Flags that control various options and behaviors on registered stats.
 typedef enum StatFlags
 {
-	/// Stat will have no special options or behaviors
-	kUnityXRStatOptionNone = 0,
-	/// Stat will clear to 0.0f at the beginning of every frame
-	kUnityXRStatOptionClearOnUpdate = 1 << 0,
-	/// Stat will have all special options and behaviors
-	kUnityXRStatOptionAll = ( 1 << 1 ) - 1
+    /// Stat will have no special options or behaviors
+    kUnityXRStatOptionNone = 0,
+    /// Stat will clear to 0.0f at the beginning of every frame
+    kUnityXRStatOptionClearOnUpdate = 1 << 0,
+    /// Stat will have all special options and behaviors
+    kUnityXRStatOptionAll = (1 << 1) - 1
 } StatFlags;
 
 /// An id used to identify individual statistics sourced from a specific Subsystem. They are unique for each stat registered with a subsystem.
@@ -56,85 +56,85 @@ const UnityXRStatId kUnityInvalidXRStatId = UINT32_MAX;
 ///     // ... setup other subsystems
 /// }
 /// @endcode
-UNITY_DECLARE_INTERFACE( IUnityXRStats )
+UNITY_DECLARE_INTERFACE(IUnityXRStats)
 {
-	/// Used to register a subsystem that will be source statistics to the Unity stats interface. This is not thread safe and should be called from the main thread.
-	///
-	/// @code
-	/// int m_FrameCountStatId;
-	/// int m_CpuTimeStatId;
-	/// static UnitySubsystemErrorCode UNITY_INTERFACE_API Lifecycle_Initialize(UnitySubsystemHandle handle, void* userData)
-	/// {
-	///      sXRStats->RegisterStatSource(handle);
-	/// }
-	/// @endcode
-	/// @param[in] handle obtained from UnityLifecycleProvider callback
-	UnitySubsystemErrorCode( UNITY_INTERFACE_API * RegisterStatSource )( UnitySubsystemHandle handle );
+    /// Used to register a subsystem that will be source statistics to the Unity stats interface. This is not thread safe and should be called from the main thread.
+    ///
+    /// @code
+    /// int m_FrameCountStatId;
+    /// int m_CpuTimeStatId;
+    /// static UnitySubsystemErrorCode UNITY_INTERFACE_API Lifecycle_Initialize(UnitySubsystemHandle handle, void* userData)
+    /// {
+    ///      sXRStats->RegisterStatSource(handle);
+    /// }
+    /// @endcode
+    /// @param[in] handle obtained from UnityLifecycleProvider callback
+    UnitySubsystemErrorCode(UNITY_INTERFACE_API * RegisterStatSource)(UnitySubsystemHandle handle);
 
 
-	/// Used to register a stat definition with the stats interface. This is not thread safe and should be called from the main thread.
-	///
-	/// @code
-	/// int m_FrameCountStatId;
-	/// int m_CpuTimeStatId;
-	/// static UnitySubsystemErrorCode UNITY_INTERFACE_API Lifecycle_Initialize(UnitySubsystemHandle handle, void* userData)
-	/// {
-	///      sXRStats->RegisterStatSource(handle);
-	///      m_FrameCountStatId = sXRStats->RegisterStatDefinition(handle, "FrameCount", kUnityXRStatOptionNone);
-	/// }
-	/// @endcode
-	///
-	/// @param[in] handle Handle of a subsystem previously registered via RegisterStatProvider
-	/// @param[in] statKey A key or tag used to identify the stat you are registering.
-	/// @param[in] flags Flags that provide metadta about the stat you are registering.
-	UnityXRStatId( UNITY_INTERFACE_API * RegisterStatDefinition )( UnitySubsystemHandle handle, const char *tag, unsigned int flags );
+    /// Used to register a stat definition with the stats interface. This is not thread safe and should be called from the main thread.
+    ///
+    /// @code
+    /// int m_FrameCountStatId;
+    /// int m_CpuTimeStatId;
+    /// static UnitySubsystemErrorCode UNITY_INTERFACE_API Lifecycle_Initialize(UnitySubsystemHandle handle, void* userData)
+    /// {
+    ///      sXRStats->RegisterStatSource(handle);
+    ///      m_FrameCountStatId = sXRStats->RegisterStatDefinition(handle, "FrameCount", kUnityXRStatOptionNone);
+    /// }
+    /// @endcode
+    ///
+    /// @param[in] handle Handle of a subsystem previously registered via RegisterStatProvider
+    /// @param[in] statKey A key or tag used to identify the stat you are registering.
+    /// @param[in] flags Flags that provide metadta about the stat you are registering.
+    UnityXRStatId(UNITY_INTERFACE_API * RegisterStatDefinition)(UnitySubsystemHandle handle, const char* tag, unsigned int flags);
 
-	/// Used to update a float type stat. This call is threadsafe.
-	///
-	/// @code
-	/// void EndOfFrame()
-	/// {
-	///     sXRStats->SetStatFloat(CpuTimeStatId, MySystem::GetCPUTime());
-	/// }
-	/// @endcode
-	///
-	/// @param[in] statID The statID obtained from calling RegisterStatDefinition.
-	/// @param[in] value The value to set the stat to.
-	UnitySubsystemErrorCode( UNITY_INTERFACE_API * SetStatFloat )( UnityXRStatId statID, float value );
+    /// Used to update a float type stat. This call is threadsafe.
+    ///
+    /// @code
+    /// void EndOfFrame()
+    /// {
+    ///     sXRStats->SetStatFloat(CpuTimeStatId, MySystem::GetCPUTime());
+    /// }
+    /// @endcode
+    ///
+    /// @param[in] statID The statID obtained from calling RegisterStatDefinition.
+    /// @param[in] value The value to set the stat to.
+    UnitySubsystemErrorCode(UNITY_INTERFACE_API * SetStatFloat)(UnityXRStatId statID, float value);
 
-	/// Used to increment the frame from which stats will be recorded
-	///
-	/// This is to be called at the beginning of a threads 'frame'
-	///
-	/// Note: This is managed on the main and gfx thread automatically so it will NOT need to be called on either of those threads.
-	///
-	/// @code
-	/// void GfxThread_GetNextFrameDesc()
-	/// {
-	///     // Do gfx things
-	///
-	///     sXRStats->SetStatFloat(GfxStatId, GetGPUTime());
-	/// }
-	///
-	/// void MainThread()
-	/// {
-	///     // Do main thread things
-	///
-	///     sXRStats->SetStatFloat(MainThreadStatId, GetCPUTime());
-	/// }
-	///
-	/// void MyWorkerThread()
-	/// {
-	///     IncrementStatFrame();
-	///
-	///     sXRStats->SetStatFloat(WorkerThreadStatId, WorkerThreadStat());
-	/// }
-	/// @endcode
-	void( UNITY_INTERFACE_API * IncrementStatFrame )( );
+    /// Used to increment the frame from which stats will be recorded
+    ///
+    /// This is to be called at the beginning of a threads 'frame'
+    ///
+    /// Note: This is managed on the main and gfx thread automatically so it will NOT need to be called on either of those threads.
+    ///
+    /// @code
+    /// void GfxThread_GetNextFrameDesc()
+    /// {
+    ///     // Do gfx things
+    ///
+    ///     sXRStats->SetStatFloat(GfxStatId, GetGPUTime());
+    /// }
+    ///
+    /// void MainThread()
+    /// {
+    ///     // Do main thread things
+    ///
+    ///     sXRStats->SetStatFloat(MainThreadStatId, GetCPUTime());
+    /// }
+    ///
+    /// void MyWorkerThread()
+    /// {
+    ///     IncrementStatFrame();
+    ///
+    ///     sXRStats->SetStatFloat(WorkerThreadStatId, WorkerThreadStat());
+    /// }
+    /// @endcode
+    void(UNITY_INTERFACE_API * IncrementStatFrame)();
 
-	/// Used to unregister the stats source from the stats interface. This is not thread safe and should be called from the main thread.
-	///
-	/// @param[in] handle the handle obtained from the UnityLifecycleProvider callback of a previously registered Stats source
-	UnitySubsystemErrorCode( UNITY_INTERFACE_API * UnregisterStatSource )( UnitySubsystemHandle handle );
+    /// Used to unregister the stats source from the stats interface. This is not thread safe and should be called from the main thread.
+    ///
+    /// @param[in] handle the handle obtained from the UnityLifecycleProvider callback of a previously registered Stats source
+    UnitySubsystemErrorCode(UNITY_INTERFACE_API *  UnregisterStatSource)(UnitySubsystemHandle handle);
 };
-UNITY_REGISTER_INTERFACE_GUID( 0xAB695A1C94114266ULL, 0xBDB5A1B3F7A54B8ULL, IUnityXRStats )
+UNITY_REGISTER_INTERFACE_GUID(0xAB695A1C94114266ULL, 0xBDB5A1B3F7A54B8ULL, IUnityXRStats)
