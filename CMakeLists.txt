@@ -113,6 +113,7 @@ add_library(XRSDKOpenVR SHARED
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnitySubsystemTypes.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnityXRDisplayStats.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnityXRTypes.h
+		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnityTypes.h
 		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/XRMath.h	${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/XRMath.cpp
 		)
 

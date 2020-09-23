@@ -185,6 +185,15 @@ namespace Unity.XR.OpenVR
 #endif
             
             CreateSubsystem<XRDisplaySubsystemDescriptor, XRDisplaySubsystem>(s_DisplaySubsystemDescriptors, "OpenVR Display");
+
+            EVRInitError result = GetInitializationResult();
+            if (result != EVRInitError.None)
+            {
+                DestroySubsystem<XRDisplaySubsystem>();
+                Debug.LogError("<b>[OpenVR]</b> Could not initialize OpenVR. Error code: " + result.ToString());
+                return false;
+            }
+
             CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(s_InputSubsystemDescriptors, "OpenVR Input");
 
             OpenVREvents.Initialize();
@@ -222,14 +231,6 @@ namespace Unity.XR.OpenVR
 
             StartSubsystem<XRDisplaySubsystem>();
             StartSubsystem<XRInputSubsystem>();
-
-            EVRInitError result = GetInitializationResult();
-
-            if (result != EVRInitError.None)
-            {
-                Debug.LogError("<b>[OpenVR]</b> Could not initialize OpenVR. Error code: " + result.ToString());
-                return false;
-            }
 
 #if !UNITY_METRO
             try
