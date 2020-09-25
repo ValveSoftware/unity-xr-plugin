@@ -8,6 +8,7 @@ using UnityEngine.Experimental.XR;
 using UnityEngine.XR.Management;
 using System.IO;
 using Valve.VR;
+using System.Runtime.CompilerServices;
 
 #if UNITY_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -17,6 +18,7 @@ using UnityEngine.InputSystem.XR;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.Build;
 #endif
 
 namespace Unity.XR.OpenVR
@@ -227,37 +229,106 @@ namespace Unity.XR.OpenVR
 
         public override bool Start()
         {
+            running = true;
             WatchForReload();
 
             StartSubsystem<XRDisplaySubsystem>();
             StartSubsystem<XRInputSubsystem>();
 
-#if !UNITY_METRO
+            SetupFileSystemWatchers();
+
+            return true;
+        }
+
+        private void SetupFileSystemWatchers()
+        {
+            SetupFileSystemWatcher();
+        }
+
+        private bool running = false;
+
+#if UNITY_METRO || ENABLE_IL2CPP
+        private FileInfo watcherFile;
+        private System.Threading.Thread watcherThread;
+        private void SetupFileSystemWatcher()
+        {
+            watcherThread = new System.Threading.Thread(new System.Threading.ThreadStart(ManualFileWatcherLoop));
+            watcherThread.Start();
+        }
+
+        private void ManualFileWatcherLoop()
+        {
+            watcherFile = new System.IO.FileInfo(mirrorViewPath);
+            long lastLength = -1;
+            while (running)
+            {
+                if (watcherFile.Exists)
+                {
+                    long currentLength = watcherFile.Length;
+                    if (lastLength != currentLength)
+                    {
+                        OnChanged(null, null);
+                        lastLength = currentLength;
+                    }
+                }
+                else
+                {
+                    lastLength = -1;
+                }
+                System.Threading.Thread.Sleep(1000);
+            }
+        }
+
+        private void DestroyMirrorModeWatcher()
+        {
+            if (watcherThread != null)
+            {
+                watcherThread.Abort();
+                watcherThread = null;
+            }
+        }
+
+#else
+        private FileInfo watcherFile;
+        private System.IO.FileSystemWatcher watcher;
+        private void SetupFileSystemWatcher()
+        {
             try
             {
                 settings = OpenVRSettings.GetSettings();
 
                 // Listen for changes in the mirror mode file
-                if (watcher == null)
+                if (watcher == null && running)
                 {
-                    var fi = new System.IO.FileInfo(mirrorViewPath);
-                    watcher = new System.IO.FileSystemWatcher(fi.DirectoryName, fi.Name);
+                    watcherFile = new System.IO.FileInfo(mirrorViewPath);
+                    watcher = new System.IO.FileSystemWatcher(watcherFile.DirectoryName, watcherFile.Name);
                     watcher.NotifyFilter = System.IO.NotifyFilters.LastWrite;
                     watcher.Created += OnChanged;
                     watcher.Changed += OnChanged;
                     watcher.EnableRaisingEvents = true;
-                    if (fi.Exists)
+                    if (watcherFile.Exists)
                         OnChanged(null, null);
                 }
-            } catch {}
-#endif
-
-            return true;
+            }
+            catch { }
         }
 
-        private System.IO.FileSystemWatcher watcher;
+        private void DestroyMirrorModeWatcher()
+        {
+            if (watcher != null)
+            {
+                watcher.Created -= OnChanged;
+                watcher.Changed -= OnChanged;
+                watcher.EnableRaisingEvents = false;
+                watcher.Dispose();
+                watcher = null;
+            }
+        }
+#endif
+
         private const string mirrorViewPath = "openvr_mirrorview.cfg";
         private OpenVRSettings settings;
+
 
         private void OnChanged(object source, System.IO.FileSystemEventArgs e)
         {
@@ -310,20 +381,9 @@ namespace Unity.XR.OpenVR
 
         private UnityEngine.Events.UnityEvent[] events;
 
-        private void DestroyMirrorModeWatcher()
-        {
-            if (watcher != null)
-            {
-                watcher.Created -= OnChanged;
-                watcher.Changed -= OnChanged;
-                watcher.EnableRaisingEvents = false;
-                watcher.Dispose();
-                watcher = null;
-            }
-        }
-
         public override bool Stop()
         {
+            running = false;
             CleanupTick();
             CleanupReloadWatcher();
             DestroyMirrorModeWatcher();            

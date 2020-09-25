@@ -144,7 +144,7 @@ bool OpenVRSystem::GetGraphicsAdapterId( void *userData, UnityXRPreInitRenderer 
 			return false;
 		}
 
-		adapterId = &graphicsAdapterId;
+        *adapterId = (uint64_t)(&graphicsAdapterId);
 	}
 
 	return graphicsAdapterId != 0;
