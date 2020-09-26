@@ -540,7 +540,7 @@ UnitySubsystemErrorCode OpenVRInputProvider::Internal_UpdateDeviceState(
 	{
 		s_Input->DeviceState_SetDiscreteStateValue( deviceState,
 			hmdFeatureIndices[static_cast< int >( HMDFeature::TrackingState )], trackingState );
-		s_Input->DeviceState_SetBinaryValue( deviceState, hmdFeatureIndices[static_cast< bool >( HMDFeature::IsTracked )], trackingPose.bPoseIsValid );
+		s_Input->DeviceState_SetBinaryValue( deviceState, hmdFeatureIndices[static_cast< int >( HMDFeature::IsTracked )], trackingPose.bPoseIsValid );
 
 		vr::EDeviceActivityLevel activityLevel = OpenVRSystem::Get().GetSystem()->GetTrackedDeviceActivityLevel(vr::k_unTrackedDeviceIndex_Hmd);
 		bool present = activityLevel == vr::k_EDeviceActivityLevel_UserInteraction;
