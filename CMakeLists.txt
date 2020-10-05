@@ -159,15 +159,14 @@ if(COPY_TO_PACKAGE)
 			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:XRSDKOpenVR>
 					${DEST})
 	else()
-		# Post-Build - Copy OpenVR api TODO is this the right destination? DEST
-		# already includes a PLATFORMX level...
+		# Post-Build - Copy OpenVR api
 		add_custom_command(
 			TARGET XRSDKOpenVR
 			POST_BUILD
 			COMMAND
 				${CMAKE_COMMAND} -E copy
 				${OPENVR_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}openvr_api${CMAKE_SHARED_LIBRARY_SUFFIX}
-				${DEST}/lib/${PLATFORMX}/
+				${DEST}
 			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:XRSDKOpenVR> ${DEST})
 	endif()
 endif()
