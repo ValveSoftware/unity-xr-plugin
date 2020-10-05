@@ -7,11 +7,8 @@ message(STATUS "Project language set to C++17")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(BINARY_RUNTIME_PATH "${CMAKE_SOURCE_DIR}/com.valve.openvr/Runtime")
 
 set(PACKAGE "com.valve.openvr")
-# Determine platform architecture
-message(STATUS "Checking platform architecture...")
 
 # Auto determine platform if none is provided
 if(NOT PLATFORM)
@@ -29,17 +26,16 @@ else()
 	 set(PLATFORMX "x86")
 endif()
 
+option(
+	COPY_TO_PACKAGE
+	"Should the binaries be copied to the ${PACKAGE} package as a post-build step? This will modify the source tree!"
+	ON)
+
 set(DEST "${CMAKE_CURRENT_SOURCE_DIR}/${PACKAGE}/Runtime/${PLATFORMX}")
-set(BINARY_PATH "${CMAKE_SOURCE_DIR}/com.valve.openvr/Runtime/${PLATFORMX}")
-message(STATUS "Platform binary path set to: ${BINARY_PATH}")
 
 # Set Platform
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   add_definitions(-DLINUX -DPOSIX)
-  set(OPENVR_API_NAME "libopenvr_api")
-  set(COMPILED_LIB_TYPE "so")
-  set(IMPORT_LIB_TYPE "so.dbg")
-  set(ARCH_TARGET linux64)
   set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath -Wl,'$ORIGIN'")
   set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
@@ -48,18 +44,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif()
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	if(${MSVC_VERSION} VERSION_LESS 1919)
-		set(PDBFILE "vc141.pdb")
-	else()
-		set(PDBFILE "vc142.pdb")
-	endif()
-
 	add_definitions(-D_WIN32)
 	add_compile_options("/Zi")
-	set(OPENVR_API_NAME "openvr_api")
-	set(COMPILED_LIB_TYPE "dll")
-	set(IMPORT_LIB_TYPE "lib")
-	set(ARCH_TARGET win${PLATFORM})
 	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
 
@@ -145,34 +131,38 @@ endif()
 set_target_properties(openvr_api PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(XRSDKOpenVR PUBLIC openvr_api)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	# Post-Build - Copy OpenVR api
-	add_custom_command(TARGET XRSDKOpenVR POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy
-					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
-					${BINARY_PATH}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
+if(COPY_TO_PACKAGE)
+	message(
+		STATUS
+			"Will copy result binary (and OpenVR dependency) to ${DEST} as a post-build step: Turn off COPY_TO_PACKAGE to disable this behavior."
+	)
 
-			COMMAND ${CMAKE_COMMAND} -E copy
-					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}.sig
-					${BINARY_PATH}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}.sig
-			
-			COMMAND ${CMAKE_COMMAND} -E copy
-					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
-					${BINARY_PATH}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
-
-			COMMAND ${CMAKE_COMMAND} -E copy
-            	    ${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/${PDBFILE}
-                	${BINARY_PATH}/${PDBFILE}
-			)
-else()
-	# Post-Build - Copy OpenVR api
-	add_custom_command(TARGET XRSDKOpenVR POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy
-					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
-					${BINARY_PATH}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE}
-			
-			COMMAND ${CMAKE_COMMAND} -E copy
-					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
-					${BINARY_PATH}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
-			)
+	if(WIN32)
+		# Post-Build - Copy OpenVR api
+		add_custom_command(
+			TARGET XRSDKOpenVR
+			POST_BUILD
+			COMMAND
+				${CMAKE_COMMAND} -E copy
+				${OPENVR_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}openvr_api${CMAKE_SHARED_LIBRARY_SUFFIX}
+				${DEST}
+			COMMAND
+				${CMAKE_COMMAND} -E copy
+				${OPENVR_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}openvr_api${CMAKE_SHARED_LIBRARY_SUFFIX}.sig
+				${DEST}
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:XRSDKOpenVR> ${DEST}
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:XRSDKOpenVR>
+					${DEST})
+	else()
+		# Post-Build - Copy OpenVR api TODO is this the right destination? DEST
+		# already includes a PLATFORMX level...
+		add_custom_command(
+			TARGET XRSDKOpenVR
+			POST_BUILD
+			COMMAND
+				${CMAKE_COMMAND} -E copy
+				${OPENVR_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}openvr_api${CMAKE_SHARED_LIBRARY_SUFFIX}
+				${DEST}/lib/${PLATFORMX}/
+			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:XRSDKOpenVR> ${DEST})
+	endif()
 endif()
