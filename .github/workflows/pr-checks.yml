@@ -1,0 +1,51 @@
+# Copyright (c) 2020, Valve Software
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+
+name: CI Checks
+
+on: [push, pull_request]
+
+jobs:
+  reuse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: REUSE Compliance Check
+        uses: fsfe/reuse-action@v1
+
+  winbuild:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Generate build files (windows x64)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake -G "Visual Studio 16 2019" -S . -B build-win64
+
+    - name: Build binaries (windows x64)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake --build build-win64 --target ALL_BUILD --config Release
+
+    - name: Generate build files (windows x86)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake -G "Visual Studio 16 2019" -A Win32 -S . -B build-win32
+
+    - name: Build binaries (windows x86)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake --build build-win32 --target ALL_BUILD --config Release
+
+  build-linux:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Generate build files (linux)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: cmake .
+
+    - name: Build binaries (linux)
+      working-directory: ${{runner.workspace}}/unity-xr-plugin
+      run: make
