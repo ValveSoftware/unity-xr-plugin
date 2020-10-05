@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(BINARY_RUNTIME_PATH "${CMAKE_SOURCE_DIR}/com.valve.openvr/Runtime")
 
+set(PACKAGE "com.valve.openvr")
 # Determine platform architecture
 message(STATUS "Checking platform architecture...")
 
@@ -28,6 +29,7 @@ else()
 	 set(PLATFORMX "x86")
 endif()
 
+set(DEST "${CMAKE_CURRENT_SOURCE_DIR}/${PACKAGE}/Runtime/${PLATFORMX}")
 set(BINARY_PATH "${CMAKE_SOURCE_DIR}/com.valve.openvr/Runtime/${PLATFORMX}")
 message(STATUS "Platform binary path set to: ${BINARY_PATH}")
 
@@ -123,13 +125,23 @@ target_include_directories(XRSDKOpenVR PUBLIC
 				ThirdParty
 				)
 
-
 # OpenVR
-message(STATUS "Importing OpenVR API...")
-
-add_library(openvr_api SHARED IMPORTED) 
-set_target_properties(openvr_api PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${COMPILED_LIB_TYPE})
-set_target_properties(openvr_api PROPERTIES IMPORTED_IMPLIB ${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE})
+set(OPENVR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib/${PLATFORMX})
+add_library(openvr_api SHARED IMPORTED)
+set_target_properties(
+	openvr_api
+	PROPERTIES
+		IMPORTED_LOCATION
+		${OPENVR_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}openvr_api${CMAKE_SHARED_LIBRARY_SUFFIX}
+)
+if(WIN32)
+	set_target_properties(
+		openvr_api
+		PROPERTIES
+			IMPORTED_IMPLIB
+			${OPENVR_DIR}/${CMAKE_IMPORT_LIBRARY_PREFIX}openvr_api${CMAKE_IMPORT_LIBRARY_SUFFIX}
+	)
+endif()
 set_target_properties(openvr_api PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(XRSDKOpenVR PUBLIC openvr_api)
 
