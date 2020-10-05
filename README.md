@@ -1,5 +1,11 @@
 # OpenVR Unity XR Plugin
 
+<!--
+Copyright (c) 2020, Valve Software
+
+SPDX-License-Identifier: BSD-3-Clause
+-->
+
 The purpose of this package is to provide OpenVR rendering to Unity XR. This package provides the necessary sdk libraries for users to build Applications that work with the OpenVR runtime. The OpenVR XR Plugin gives you access to rendering on all major VR devices through one interface. Explicit support for: HTC Vive, HTC Vive Cosmos, Oculus Rift, Oculus Rift S, Oculus Quest (Link), Windows Mixed Reality, and Valve Index. Other SteamVR compatible devices are supported though may have inaccurate or incomplete features. See our [QuickStart guide](#QuickStart).
 
 ## License

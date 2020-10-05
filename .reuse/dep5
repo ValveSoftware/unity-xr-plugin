@@ -1,0 +1,45 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: OpenVR Unity XR Plugin
+Upstream-Contact: Valve Software
+Source: https://github.com/ValveSoftware/unity-xr-plugin
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...
+
+Files:
+  com.valve.openvr/*.meta
+  PackageMetaFiles/x64/XRSDKOpenVR.dll.meta
+  PackageMetaFiles/x86/XRSDKOpenVR.dll.meta
+Copyright: 2020, Valve Software
+License: BSD-3-Clause
+Comment: These metafiles originate in this package.
+
+Files:
+  com.valve.openvr/Runtime/x86/openvr_api.*
+  com.valve.openvr/Runtime/x64/openvr_api.*
+  com.valve.openvr/Runtime/x64/libopenvr_api.*
+  com.valve.openvr/Runtime/x64/lib/x64/libopenvr_api.*
+  com.valve.openvr/Runtime/openvr_api.cs
+  lib/x86/openvr_api.*
+  lib/x86/libopenvr_api.*
+  lib/x64/openvr_api.*
+  lib/x64/libopenvr_api.*
+  CommonHeaders/OpenVR/*
+Copyright: 2015-2020, Valve Software
+License: BSD-3-Clause
+Comment: OpenVR headers and binaries - OpenVR public repo lists BSD-3-Clause as license.
+
+
+Files:
+  com.valve.openvr/Runtime/x86/XRSDKOpenVR.*
+  com.valve.openvr/Runtime/x64/XRSDKOpenVR.*
+  com.valve.openvr/Runtime/x64/libXRSDKOpenVR.*
+  com.valve.openvr/Runtime/x64/libXRSDKOpenVR.*
+Copyright:
+  2015-2020, Valve Software
+  2015-2020, Unity Technologies ApS
+License: BSD-3-Clause AND LicenseRef-Unity-Companion-License
+Comment: Binaries built from sources of these two licenses.

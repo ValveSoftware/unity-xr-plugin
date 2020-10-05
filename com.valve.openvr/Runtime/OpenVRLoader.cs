@@ -1,3 +1,7 @@
+// Copyright (c) 2020, Valve Software
+//
+// SPDX-License-Identifier: BSD-3-Clause
+
 ﻿#if UNITY_XR_MANAGEMENT
 using System;
 using System.Collections.Generic;
