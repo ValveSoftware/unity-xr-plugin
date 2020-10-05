@@ -76,68 +76,52 @@ message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit")
 message(STATUS "Adding XRSDKOpenVR...")
 
 add_library(XRSDKOpenVR SHARED
-		${CMAKE_SOURCE_DIR}/Providers/dllmain.cpp
-		${CMAKE_SOURCE_DIR}/Providers/OpenVRProviderContext.h
-		${CMAKE_SOURCE_DIR}/Providers/OpenVRSystem.h	${CMAKE_SOURCE_DIR}/Providers/OpenVRSystem.cpp
-		${CMAKE_SOURCE_DIR}/Providers/UserProjectSettings.h	${CMAKE_SOURCE_DIR}/Providers/UserProjectSettings.cpp
+		Providers/dllmain.cpp
+		Providers/OpenVRProviderContext.h
+		Providers/OpenVRSystem.h	Providers/OpenVRSystem.cpp
+		Providers/UserProjectSettings.h	Providers/UserProjectSettings.cpp
 
-		${CMAKE_SOURCE_DIR}/Providers/Display/Display.h	${CMAKE_SOURCE_DIR}/Providers/Display/Display.cpp
-		${CMAKE_SOURCE_DIR}/Providers/Input/Input.h	${CMAKE_SOURCE_DIR}/Providers/Input/Input.cpp
+		Providers/Display/Display.h	Providers/Display/Display.cpp
+		Providers/Input/Input.h	Providers/Input/Input.cpp
 
-		${CMAKE_SOURCE_DIR}/CommonHeaders/UnityInterfaces.h	${CMAKE_SOURCE_DIR}/CommonHeaders/UnityInterfaces.cpp
+		CommonHeaders/UnityInterfaces.h	CommonHeaders/UnityInterfaces.cpp
 
-		${CMAKE_SOURCE_DIR}/CommonHeaders/Singleton.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/CommonTypes.h
+		CommonHeaders/Singleton.h
+		CommonHeaders/CommonTypes.h
 
-		${CMAKE_SOURCE_DIR}/CommonHeaders/OpenVR/openvr.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/OpenVR/openvr_driver.h
+		CommonHeaders/OpenVR/openvr.h
+		CommonHeaders/OpenVR/openvr_driver.h
 
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRAudio.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityEventQueue.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityGraphics.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityGraphicsD3D11.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityGraphicsD3D12.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityGraphicsMetal.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityGraphicsVulkan.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityInterface.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityProfilerCallbacks.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityRenderingExtensions.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityShaderCompilerAccess.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRDisplay.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRDisplayShadingRateExt.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRInput.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRMeshing.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRPreInit.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRStats.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/IUnityXRTrace.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnitySubsystemTypes.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnityXRDisplayStats.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnityXRTypes.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/UnityTypes.h
-		${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/XRMath.h	${CMAKE_SOURCE_DIR}/CommonHeaders/ProviderInterface/XRMath.cpp
+		CommonHeaders/ProviderInterface/IUnityXRAudio.h
+		CommonHeaders/ProviderInterface/IUnityEventQueue.h
+		CommonHeaders/ProviderInterface/IUnityGraphics.h
+		CommonHeaders/ProviderInterface/IUnityGraphicsD3D11.h
+		CommonHeaders/ProviderInterface/IUnityGraphicsD3D12.h
+		CommonHeaders/ProviderInterface/IUnityGraphicsMetal.h
+		CommonHeaders/ProviderInterface/IUnityGraphicsVulkan.h
+		CommonHeaders/ProviderInterface/IUnityInterface.h
+		CommonHeaders/ProviderInterface/IUnityProfilerCallbacks.h
+		CommonHeaders/ProviderInterface/IUnityRenderingExtensions.h
+		CommonHeaders/ProviderInterface/IUnityShaderCompilerAccess.h
+		CommonHeaders/ProviderInterface/IUnityXRDisplay.h
+		CommonHeaders/ProviderInterface/IUnityXRDisplayShadingRateExt.h
+		CommonHeaders/ProviderInterface/IUnityXRInput.h
+		CommonHeaders/ProviderInterface/IUnityXRMeshing.h
+		CommonHeaders/ProviderInterface/IUnityXRPreInit.h
+		CommonHeaders/ProviderInterface/IUnityXRStats.h
+		CommonHeaders/ProviderInterface/IUnityXRTrace.h
+		CommonHeaders/ProviderInterface/UnitySubsystemTypes.h
+		CommonHeaders/ProviderInterface/UnityXRDisplayStats.h
+		CommonHeaders/ProviderInterface/UnityXRTypes.h
+		CommonHeaders/ProviderInterface/UnityTypes.h
+		CommonHeaders/ProviderInterface/XRMath.h	CommonHeaders/ProviderInterface/XRMath.cpp
 		)
 
-target_include_directories(XRSDKOpenVR PUBLIC 
-				${CMAKE_SOURCE_DIR}/Providers
-				${CMAKE_SOURCE_DIR}/CommonHeaders
-				${CMAKE_SOURCE_DIR}/ThirdParty
+target_include_directories(XRSDKOpenVR PUBLIC
+				Providers
+				CommonHeaders
+				ThirdParty
 				)
-
-include(GenerateExportHeader)
-generate_export_header(XRSDKOpenVR)
-
-
-message(STATUS "Runtime output directory set to: ${BINARY_PATH}")
-set_target_properties(XRSDKOpenVR 
-    PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${BINARY_PATH}"
-    ARCHIVE_OUTPUT_DIRECTORY_DEBUG "${BINARY_PATH}"
-    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${BINARY_PATH}"
-    RUNTIME_OUTPUT_DIRECTORY_DEBUG "${BINARY_PATH}"
-    ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${BINARY_PATH}"
-    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${BINARY_PATH}"
-    RUNTIME_OUTPUT_DIRECTORY_RELEASE "${BINARY_PATH}"
-)
 
 
 # OpenVR
