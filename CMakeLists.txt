@@ -52,7 +52,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	add_definitions(-D_WIN32)
 	add_compile_options("/Zi")
-	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS True)
 endif()
 
 if(MSVC)
