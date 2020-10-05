@@ -1,8 +1,13 @@
+# Copyright (c) 2020, Valve Software
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_SUPPRESS_REGENERATION true)
 project(unity_xr_openvr_plugin)
 
-# C++ 17 - note cmake minver is 3.10 supported only on MS C++ 2015 Update 3 and above
+# C++ 17 - note cmake minver is 3.10 supported only on MS C++ 2015 Update 3 and
+# above
 message(STATUS "Project language set to C++17")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -13,9 +18,9 @@ set(PACKAGE "com.valve.openvr")
 # Auto determine platform if none is provided
 if(NOT PLATFORM)
 	if(CMAKE_SIZEOF_VOID_P MATCHES 8)
-	    set(PLATFORM 64)
+		set(PLATFORM 64)
 	else()
-	    set(PLATFORM 32)
+		set(PLATFORM 32)
 	endif()
 endif()
 
@@ -23,7 +28,7 @@ endif()
 if(PLATFORM MATCHES 64)
 	set(PLATFORMX "x64")
 else()
-	 set(PLATFORMX "x86")
+	set(PLATFORMX "x86")
 endif()
 
 option(
@@ -35,13 +40,14 @@ set(DEST "${CMAKE_CURRENT_SOURCE_DIR}/${PACKAGE}/Runtime/${PLATFORMX}")
 
 # Set Platform
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  add_definitions(-DLINUX -DPOSIX)
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath -Wl,'$ORIGIN'")
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+	add_definitions(-DLINUX -DPOSIX)
+	set(CMAKE_SHARED_LINKER_FLAGS
+		"${CMAKE_SHARED_LINKER_FLAGS} -Wl,-rpath -Wl,'$ORIGIN'")
+	set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-  if(${PLATFORM} MATCHES 32)
-    message(WARNING "OpenVR x86 binaries not provided on x86 GNU/Linux.")
-  endif()
+	if(${PLATFORM} MATCHES 32)
+		message(WARNING "OpenVR x86 binaries not provided on x86 GNU/Linux.")
+	endif()
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	add_definitions(-D_WIN32)
@@ -50,12 +56,12 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 endif()
 
 if(MSVC)
-    message(WARNING "Adding static link option.")
-    add_compile_options(
-        $<$<CONFIG:>:/MT> #---------|
-        $<$<CONFIG:Debug>:/MTd> #---|-- Statically link the runtime libraries
-        $<$<CONFIG:Release>:/MT> #--|
-    )
+	# Statically link the runtime libraries
+	add_compile_options(
+		$<$<CONFIG:>:/MT>
+		$<$<CONFIG:Debug>:/MTd>
+		$<$<CONFIG:Release>:/MT>
+		$<$<CONFIG:RelWithDebInfo>:/MT>)
 endif()
 
 message(STATUS "Compilation set for ${CMAKE_SYSTEM_NAME} ${PLATFORM}bit")
