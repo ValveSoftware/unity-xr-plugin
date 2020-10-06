@@ -19,7 +19,6 @@ namespace Unity.XR.OpenVR
         {
         "XRSDKOpenVR",
         "openvr_api",
-        "vc14",
         };
 
         public int callbackOrder { get; set; }
@@ -28,8 +27,8 @@ namespace Unity.XR.OpenVR
         {
             XRGeneralSettings generalSettings = XRGeneralSettingsPerBuildTarget.XRGeneralSettingsForBuildTarget(BuildPipeline.GetBuildTargetGroup(EditorUserBuildSettings.activeBuildTarget));
             if (generalSettings == null)
-                return false; 
-            
+                return false;
+
             foreach (var loader in generalSettings.Manager.loaders)
             {
                 if (loader is OpenVRLoader)

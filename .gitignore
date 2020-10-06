@@ -78,3 +78,10 @@ _deps
 *.vpc
 *.vpc.sentinel
 *.vpc_crc
+
+# Parts from builds
+*.recipe
+*.lastbuildstate
+*.exp
+*.ilk
+build*/
