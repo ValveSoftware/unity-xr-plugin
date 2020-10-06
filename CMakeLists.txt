@@ -155,9 +155,12 @@ if(COPY_TO_PACKAGE)
 				${CMAKE_COMMAND} -E copy
 				${OPENVR_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}openvr_api${CMAKE_SHARED_LIBRARY_SUFFIX}.sig
 				${DEST}
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:XRSDKOpenVR> ${DEST}
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_PDB_FILE:XRSDKOpenVR>
-					${DEST})
+			COMMAND ${CMAKE_COMMAND} -E rm -f ${DEST}/$<TARGET_FILE_NAME:XRSDKOpenVR>
+			COMMAND ${CMAKE_COMMAND} -E rm -f ${DEST}/$<TARGET_PDB_FILE_NAME:XRSDKOpenVR>
+			COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:XRSDKOpenVR>" ${DEST}
+			COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_PDB_FILE:XRSDKOpenVR>" ${DEST}
+			COMMENT "Copying plugin binary to package runtime directory"
+			VERBATIM)
 	else()
 		# Post-Build - Copy OpenVR api
 		add_custom_command(
@@ -167,6 +170,9 @@ if(COPY_TO_PACKAGE)
 				${CMAKE_COMMAND} -E copy
 				${OPENVR_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}openvr_api${CMAKE_SHARED_LIBRARY_SUFFIX}
 				${DEST}
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:XRSDKOpenVR> ${DEST})
+			COMMAND ${CMAKE_COMMAND} -E rm -f "${DEST}/$<TARGET_FILE_NAME:XRSDKOpenVR>"
+			COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:XRSDKOpenVR>" ${DEST}
+			COMMENT "Copying plugin binary to package runtime directory"
+			VERBATIM)
 	endif()
 endif()
