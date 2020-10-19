@@ -959,8 +959,15 @@ void OpenVRInputProvider::GfxThread_UpdateDevices()
 	vr::TrackedDevicePose_t trackedDevicesCurrent[vr::k_unMaxTrackedDeviceCount];
 	vr::TrackedDevicePose_t trackedDevicesFuture[vr::k_unMaxTrackedDeviceCount];
 
-	OpenVRSystem::Get().GetCompositor()->WaitGetPoses( trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount,
-		trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+	if ( UserProjectSettings::GetInitializationType() == vr::VRApplication_Overlay )
+	{
+		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.0, trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount );
+		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.011, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+	}
+	else
+	{
+		OpenVRSystem::Get().GetCompositor()->WaitGetPoses( trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+	}
 
 	GfxThread_UpdateConnectedDevices( trackedDevicesCurrent );
 	GfxThread_CopyPoses( trackedDevicesCurrent, trackedDevicesFuture );

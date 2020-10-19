@@ -229,6 +229,8 @@ private:
 	/// Whether the application is using single pass or multi pass (can be changed in runtime)
 	bool m_bUseSinglePass = false;
 
+	bool m_bIsOverlayApplication = false;
+
 	/// The current frame number, will revert to 0 at UINT32MAX
 	uint32_t m_nCurFrame = 0;
 

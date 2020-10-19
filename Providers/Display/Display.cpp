@@ -278,6 +278,8 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_Start( UnityXRRendering
 	m_pOcclusionMeshLeftEye = SetupOcclusionMesh( vr::Eye_Left );
 	m_pOcclusionMeshRightEye = SetupOcclusionMesh( vr::Eye_Right );
 
+	m_bIsOverlayApplication = UserProjectSettings::GetInitializationType() == vr::VRApplication_Overlay;
+
 	return kUnitySubsystemErrorCodeSuccess;
 }
 
@@ -752,17 +754,20 @@ bool OpenVRDisplayProvider::SubmitToCompositor( vr::EVREye eEye, int nStage )
 	tex.eType = m_eActiveTextureType;
 	tex.eColorSpace = vr::ColorSpace_Auto;
 
-	// OpenVR submission flags
-	vr::EVRSubmitFlags nFlags = m_eActiveTextureType == vr::TextureType_Vulkan ? vr::Submit_VulkanTextureWithArrayData : vr::Submit_Default;
-
-	// Submit the texture to the Compositor
-	vr::EVRCompositorError res = vr::VRCompositorError_None;
-	res = vr::VRCompositor()->Submit( eEye, &tex, &m_textureBounds, nFlags );
-
-	if ( res != vr::VRCompositorError_None )
+	if ( !m_bIsOverlayApplication )
 	{
-		XR_TRACE( "[OpenVR] [Error] Unable to submit eye texture: [%i] [%x]\n", res, tex.handle );
-		return false;
+		// OpenVR submission flags
+		vr::EVRSubmitFlags nFlags = m_eActiveTextureType == vr::TextureType_Vulkan ? vr::Submit_VulkanTextureWithArrayData : vr::Submit_Default;
+
+		// Submit the texture to the Compositor
+		vr::EVRCompositorError res = vr::VRCompositorError_None;
+		res = vr::VRCompositor()->Submit( eEye, &tex, &m_textureBounds, nFlags );
+
+		if ( res != vr::VRCompositorError_None )
+		{
+			XR_TRACE( "[OpenVR] [Error] Unable to submit eye texture: [%i] [%x]\n", res, tex.handle );
+			return false;
+		}
 	}
 
 	return true;
