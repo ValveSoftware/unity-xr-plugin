@@ -27,12 +27,6 @@ namespace Unity.XR.OpenVR.Editor
 
         private SerializedProperty m_MirrorViewMode;
 
-        private const string kPromptToUpgradePackageKey = "PromptToUpgradePackage";
-
-        static GUIContent s_PromptToUpgradePackage = EditorGUIUtility.TrTextContent("Prompt To Upgrade Package");
-
-        private SerializedProperty m_PromptToUpgradePackage;
-
         public GUIContent WindowsTab;
         private int tab = 0;
 
@@ -40,9 +34,33 @@ namespace Unity.XR.OpenVR.Editor
         { 
             WindowsTab = new GUIContent("",  EditorGUIUtility.IconContent("BuildSettings.Standalone.Small").image);
         }
+        public static void CloseWindowHelper()
+        {
+            var window = SettingsService.OpenProjectSettings("Project/XR Plug-in Management");
+            if (window)
+            {
+                Debug.LogWarning("<b>[Community OpenXR]</b> Switching away from OpenVR Project settings window to avoid data corruption.");
+            }
+            EditorApplication.update -= CloseWindowHelper;
+            closing = false;
+        }
+        private static bool closing = false;
 
         public override void OnInspectorGUI()
         {
+            if (Application.isPlaying)
+            {
+                //need to close this window if we're in play mode. There's a bug that resets settings otherwise.
+                EditorGUILayout.LabelField("Unity XR settings are unavailable while in play mode.");
+
+                if (!closing)
+                {
+                    closing = true;
+                    EditorApplication.update += CloseWindowHelper;
+                }
+                return;
+            }
+
             if (serializedObject == null || serializedObject.targetObject == null)
                 return;
 
@@ -58,10 +76,6 @@ namespace Unity.XR.OpenVR.Editor
             {
                 m_MirrorViewMode = serializedObject.FindProperty(kMirrorViewModeKey);
             }
-            if (m_PromptToUpgradePackage == null)
-            {
-                m_PromptToUpgradePackage = serializedObject.FindProperty(kPromptToUpgradePackageKey);
-            }
 
             serializedObject.Update();
 
@@ -75,21 +89,22 @@ namespace Unity.XR.OpenVR.Editor
             if (tab == 0)
             {
                 EditorGUILayout.PropertyField(m_InitializationType, s_InitializationType);
+
                 EditorGUILayout.PropertyField(m_StereoRenderingMode, s_StereoRenderingMode);
                 EditorGUILayout.PropertyField(m_MirrorViewMode, s_MirrorViewMode);
-                EditorGUILayout.Space();
-                EditorGUILayout.PropertyField(m_PromptToUpgradePackage, s_PromptToUpgradePackage);
             }
             EditorGUILayout.EndVertical();
 
             serializedObject.ApplyModifiedProperties();
 
+            /*
+            //can't have the settings window open during play mode
             int newMode = m_MirrorViewMode.intValue;
 
             if (currentMode != newMode && Application.isPlaying)
             {
                 OpenVRSettings.SetMirrorViewMode((ushort)newMode);
-            }
+            }*/
         }
     }
 }
