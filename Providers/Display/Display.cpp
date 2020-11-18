@@ -749,10 +749,16 @@ bool OpenVRDisplayProvider::SubmitToCompositor( vr::EVREye eEye, int nStage )
 	}
 
 	// Grab the correct texture for this stage
-	vr::Texture_t tex;
+	vr::VRTextureWithDepth_t tex;
 	tex.handle = m_eActiveTextureType == vr::TextureType_Vulkan ? &m_vrVulkanTexture : GetNativeEyeTexture( nStage, nTexIndex );
 	tex.eType = m_eActiveTextureType;
 	tex.eColorSpace = vr::ColorSpace_Auto;
+
+	// Check if we have a valid depth buffer
+	if (m_pNativeDepthTextures[eEye][nStage])
+	{
+		tex.depth.handle = m_pNativeDepthTextures[eEye][nStage];
+	}
 
 	if ( !m_bIsOverlayApplication )
 	{
@@ -1148,6 +1154,7 @@ void *OpenVRDisplayProvider::GetNativeEyeTexture( int stage, int eye )
 
 	return m_pNativeColorTextures[stage][eye];
 }
+
 
 void OpenVRDisplayProvider::ReleaseOverlayPointers()
 {
