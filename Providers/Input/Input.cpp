@@ -961,8 +961,8 @@ void OpenVRInputProvider::GfxThread_UpdateDevices()
 
 	if ( UserProjectSettings::GetInitializationType() == vr::VRApplication_Overlay )
 	{
-		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.0, trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount );
-		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.011, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.0f, trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount );
+		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.011f, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
 	}
 	else
 	{

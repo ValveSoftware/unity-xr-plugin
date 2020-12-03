@@ -143,7 +143,7 @@ private:
 	/// @param[in] UnitySubsystemHandle handle - The handle for this display provider
 	void DestroyEyeTextures( UnitySubsystemHandle handle );
 
-	/// Destroy the textures Unity uses to submit to the compositor
+	/// Get the eye textures Unity uses to submit to the compositor
 	/// @param[in] int stage - The stage of the render pass 
 	/// @param[in] int eye - 0:Left, 1:Right
 	/// @return The device native texture that needs to be sent to the compositor
@@ -263,4 +263,7 @@ private:
 
 	/// Holds the Unity equivalent eye textures per stage (0:Left, 1: Right, Single Pass only uses left with texture array size of 2)
 	UnityXRRenderTextureId m_UnityTextures[k_nMaxNumStages][2];
+
+	/// Holds the Unity equivalent eye depth textures per stage (0:Left, 1: Right, Single Pass only uses left with texture array size of 2)
+	UnityXRRenderTextureId m_UnityDepthTextures[k_nMaxNumStages][2];
 };
