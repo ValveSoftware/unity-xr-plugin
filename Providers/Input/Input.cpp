@@ -329,7 +329,7 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::FillDeviceDefin
 
 	auto deviceName = ( *device )->GetDeviceName();
 	if ( !deviceName )
-		return kUnitySubsystemErrorCodeFailure;
+		deviceName = serialNumberString;
 
 	char inputProfileBuffer[kUnityXRStringSize];
 	uint32_t inputProfileSize = OpenVRSystem::Get().GetSystem()->GetStringTrackedDeviceProperty( ( *device )->openVRDeviceIndex,

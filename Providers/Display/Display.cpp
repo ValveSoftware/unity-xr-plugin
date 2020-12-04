@@ -27,6 +27,7 @@ static UnityXRStatId m_flGPURenderTimeInMs;			// time between work submitted imm
 static UnityXRStatId m_flCPURenderTimeInMs;			// time spent on cpu submitting the above work for this frame
 static UnityXRStatId m_flCPUIdelTimeInMs;			// time spent waiting for running start (application could have used this much more time)
 static UnityXRStatId m_flCompositorRenderTimeInMs;	// time spend performing distortion correction, rendering chaperone, overlays, etc.
+static UnityXRStatId m_flRefreshRate;
 
 static UnitySubsystemErrorCode UNITY_INTERFACE_API GfxThread_Start( UnitySubsystemHandle handle, void *userData, UnityXRRenderingCapabilities *renderingCaps )
 {
@@ -397,6 +398,8 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_PopulateNextFrameDesc( 
 			s_pXRStats->SetStatFloat( m_flCPURenderTimeInMs, pTiming.m_flCompositorRenderCpuMs );
 			s_pXRStats->SetStatFloat( m_flCPUIdelTimeInMs, pTiming.m_flCompositorIdleCpuMs );
 			s_pXRStats->SetStatFloat( m_flCompositorRenderTimeInMs, pTiming.m_flCompositorRenderGpuMs );
+            s_pXRStats->SetStatFloat( m_flRefreshRate, vr::VRSystem()->GetFloatTrackedDeviceProperty(0, 
+				vr::ETrackedDeviceProperty::Prop_DisplayFrequency_Float));
 		}
 	}
 
@@ -647,6 +650,7 @@ void OpenVRDisplayProvider::SetupMirror()
 		m_flCPURenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CPURenderTimeMs", kUnityXRStatOptionNone );
 		m_flCPUIdelTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CPUIdleTimeMs", kUnityXRStatOptionNone );
 		m_flCompositorRenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CompositorRenderTimeMs", kUnityXRStatOptionNone );
+        m_flRefreshRate = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsDisplayRefreshRate, kUnityXRStatOptionNone );
 	}
 
 
