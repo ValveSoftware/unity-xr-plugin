@@ -51,7 +51,7 @@ class OpenVRPackage : IXRPackage
             
             // Do something here if you need to...
         }
-        return false;
+        return true;
 
     }
 }
