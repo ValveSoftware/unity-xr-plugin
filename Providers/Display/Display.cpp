@@ -643,13 +643,12 @@ void OpenVRDisplayProvider::SetupMirror()
 	if ( s_pXRStats )
 	{
 		s_pXRStats->RegisterStatSource( s_DisplayHandle );
-		m_nNumDroppedFrames = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.DroppedFrames", kUnityXRStatOptionNone );
-		m_nNumFramePresents = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.FramePresents", kUnityXRStatOptionNone );
+		m_nNumDroppedFrames = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsDroppedFrameCount, kUnityXRStatOptionNone );
+		m_nNumFramePresents = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsFramePresentCount, kUnityXRStatOptionNone );
 		m_flFrameTimeReference = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.FrameTimeReferenceSecs", kUnityXRStatOptionNone );
-		m_flGPURenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.GPURenderTimeMs", kUnityXRStatOptionNone );
-		m_flCPURenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CPURenderTimeMs", kUnityXRStatOptionNone );
+		m_flCPURenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsGPUTimeApp, kUnityXRStatOptionNone );
 		m_flCPUIdelTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CPUIdleTimeMs", kUnityXRStatOptionNone );
-		m_flCompositorRenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CompositorRenderTimeMs", kUnityXRStatOptionNone );
+		m_flCompositorRenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsGPUTimeCompositor, kUnityXRStatOptionNone );
         m_flRefreshRate = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsDisplayRefreshRate, kUnityXRStatOptionNone );
 	}
 
