@@ -75,6 +75,7 @@ private:
 		CenterEyeRotation,
 		CenterEyeVelocity,
 		CenterEyeAngularVelocity,
+        UserPresence,
 		Total
 	};
 

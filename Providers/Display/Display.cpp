@@ -27,6 +27,7 @@ static UnityXRStatId m_flGPURenderTimeInMs;			// time between work submitted imm
 static UnityXRStatId m_flCPURenderTimeInMs;			// time spent on cpu submitting the above work for this frame
 static UnityXRStatId m_flCPUIdelTimeInMs;			// time spent waiting for running start (application could have used this much more time)
 static UnityXRStatId m_flCompositorRenderTimeInMs;	// time spend performing distortion correction, rendering chaperone, overlays, etc.
+static UnityXRStatId m_flRefreshRate;
 
 static UnitySubsystemErrorCode UNITY_INTERFACE_API GfxThread_Start( UnitySubsystemHandle handle, void *userData, UnityXRRenderingCapabilities *renderingCaps )
 {
@@ -278,6 +279,8 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_Start( UnityXRRendering
 	m_pOcclusionMeshLeftEye = SetupOcclusionMesh( vr::Eye_Left );
 	m_pOcclusionMeshRightEye = SetupOcclusionMesh( vr::Eye_Right );
 
+	m_bIsOverlayApplication = UserProjectSettings::GetInitializationType() == vr::VRApplication_Overlay;
+
 	return kUnitySubsystemErrorCodeSuccess;
 }
 
@@ -395,6 +398,8 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_PopulateNextFrameDesc( 
 			s_pXRStats->SetStatFloat( m_flCPURenderTimeInMs, pTiming.m_flCompositorRenderCpuMs );
 			s_pXRStats->SetStatFloat( m_flCPUIdelTimeInMs, pTiming.m_flCompositorIdleCpuMs );
 			s_pXRStats->SetStatFloat( m_flCompositorRenderTimeInMs, pTiming.m_flCompositorRenderGpuMs );
+            s_pXRStats->SetStatFloat( m_flRefreshRate, vr::VRSystem()->GetFloatTrackedDeviceProperty(0, 
+				vr::ETrackedDeviceProperty::Prop_DisplayFrequency_Float));
 		}
 	}
 
@@ -638,13 +643,13 @@ void OpenVRDisplayProvider::SetupMirror()
 	if ( s_pXRStats )
 	{
 		s_pXRStats->RegisterStatSource( s_DisplayHandle );
-		m_nNumDroppedFrames = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.DroppedFrames", kUnityXRStatOptionNone );
-		m_nNumFramePresents = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.FramePresents", kUnityXRStatOptionNone );
+		m_nNumDroppedFrames = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsDroppedFrameCount, kUnityXRStatOptionNone );
+		m_nNumFramePresents = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsFramePresentCount, kUnityXRStatOptionNone );
 		m_flFrameTimeReference = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.FrameTimeReferenceSecs", kUnityXRStatOptionNone );
-		m_flGPURenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.GPURenderTimeMs", kUnityXRStatOptionNone );
-		m_flCPURenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CPURenderTimeMs", kUnityXRStatOptionNone );
+		m_flCPURenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsGPUTimeApp, kUnityXRStatOptionNone );
 		m_flCPUIdelTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CPUIdleTimeMs", kUnityXRStatOptionNone );
-		m_flCompositorRenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, "OpenVR.CompositorRenderTimeMs", kUnityXRStatOptionNone );
+		m_flCompositorRenderTimeInMs = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsGPUTimeCompositor, kUnityXRStatOptionNone );
+        m_flRefreshRate = s_pXRStats->RegisterStatDefinition( s_DisplayHandle, kUnityStatsDisplayRefreshRate, kUnityXRStatOptionNone );
 	}
 
 
@@ -747,22 +752,31 @@ bool OpenVRDisplayProvider::SubmitToCompositor( vr::EVREye eEye, int nStage )
 	}
 
 	// Grab the correct texture for this stage
-	vr::Texture_t tex;
+	vr::VRTextureWithDepth_t tex;
 	tex.handle = m_eActiveTextureType == vr::TextureType_Vulkan ? &m_vrVulkanTexture : GetNativeEyeTexture( nStage, nTexIndex );
 	tex.eType = m_eActiveTextureType;
 	tex.eColorSpace = vr::ColorSpace_Auto;
 
-	// OpenVR submission flags
-	vr::EVRSubmitFlags nFlags = m_eActiveTextureType == vr::TextureType_Vulkan ? vr::Submit_VulkanTextureWithArrayData : vr::Submit_Default;
-
-	// Submit the texture to the Compositor
-	vr::EVRCompositorError res = vr::VRCompositorError_None;
-	res = vr::VRCompositor()->Submit( eEye, &tex, &m_textureBounds, nFlags );
-
-	if ( res != vr::VRCompositorError_None )
+	// Check if we have a valid depth buffer
+	if (m_pNativeDepthTextures[eEye][nStage])
 	{
-		XR_TRACE( "[OpenVR] [Error] Unable to submit eye texture: [%i] [%x]\n", res, tex.handle );
-		return false;
+		tex.depth.handle = m_pNativeDepthTextures[eEye][nStage];
+	}
+
+	if ( !m_bIsOverlayApplication )
+	{
+		// OpenVR submission flags
+		vr::EVRSubmitFlags nFlags = m_eActiveTextureType == vr::TextureType_Vulkan ? vr::Submit_VulkanTextureWithArrayData : vr::Submit_Default;
+
+		// Submit the texture to the Compositor
+		vr::EVRCompositorError res = vr::VRCompositorError_None;
+		res = vr::VRCompositor()->Submit( eEye, &tex, &m_textureBounds, nFlags );
+
+		if ( res != vr::VRCompositorError_None )
+		{
+			XR_TRACE( "[OpenVR] [Error] Unable to submit eye texture: [%i] [%x]\n", res, tex.handle );
+			return false;
+		}
 	}
 
 	return true;
@@ -1143,6 +1157,7 @@ void *OpenVRDisplayProvider::GetNativeEyeTexture( int stage, int eye )
 
 	return m_pNativeColorTextures[stage][eye];
 }
+
 
 void OpenVRDisplayProvider::ReleaseOverlayPointers()
 {

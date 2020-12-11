@@ -33,6 +33,7 @@ public:
 	void SetTickCallback( TickCallback newTickCallback ) { tickCallback = newTickCallback; }
 
 private:
+    uint64_t graphicsAdapterId;
 	int m_FrameIndex;
 
 	// OpenVR interfaces

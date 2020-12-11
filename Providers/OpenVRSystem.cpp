@@ -113,41 +113,41 @@ bool OpenVRSystem::Update()
 
 bool OpenVRSystem::GetGraphicsAdapterId( void *userData, UnityXRPreInitRenderer renderer, uint64_t rendererData, uint64_t *adapterId )
 {
-	uint64_t luid; { luid = *adapterId; }
-
 	if ( GetInitialized() && GetCompositor() )
 	{
 		if ( renderer == UnityXRPreInitRenderer::kUnityXRPreInitRendererD3D11 )
 		{
-			m_VRSystem->GetOutputDevice( &luid, vr::TextureType_DirectX );
+            m_VRSystem->GetOutputDevice( &graphicsAdapterId, vr::TextureType_DirectX );
 		}
 		else if ( renderer == UnityXRPreInitRenderer::kUnityXRPreInitRendererD3D12 )
 		{
-			m_VRSystem->GetOutputDevice( &luid, vr::TextureType_DirectX12 );
+			m_VRSystem->GetOutputDevice( &graphicsAdapterId, vr::TextureType_DirectX12 );
 		}
 		else if ( renderer == UnityXRPreInitRenderer::kUnityXRPreInitRendererGLCore )
 		{
-			m_VRSystem->GetOutputDevice( &luid, vr::TextureType_OpenGL );
+			m_VRSystem->GetOutputDevice( &graphicsAdapterId, vr::TextureType_OpenGL );
 		}
 		else if ( renderer == UnityXRPreInitRenderer::kUnityXRPreInitRendererGLCore )
 		{
-			m_VRSystem->GetOutputDevice( &luid, vr::TextureType_OpenGL );
+			m_VRSystem->GetOutputDevice( &graphicsAdapterId, vr::TextureType_OpenGL );
 		}
 		else if ( renderer == UnityXRPreInitRenderer::kUnityXRPreInitRendererMetal )
 		{
-			m_VRSystem->GetOutputDevice( &luid, vr::TextureType_Metal );
+			m_VRSystem->GetOutputDevice( &graphicsAdapterId, vr::TextureType_Metal );
 		}
 		else if ( renderer == UnityXRPreInitRenderer::kUnityXRPreInitRendererVulkan )
 		{
-			m_VRSystem->GetOutputDevice( &luid, vr::TextureType_Vulkan, (VkInstance_T * )rendererData );
+			m_VRSystem->GetOutputDevice( &graphicsAdapterId, vr::TextureType_Vulkan, (VkInstance_T * )rendererData );
 		}
 		else
 		{
 			return false;
 		}
+
+        *adapterId = (uint64_t)(&graphicsAdapterId);
 	}
 
-	return luid != 0;
+	return graphicsAdapterId != 0;
 }
 
 bool OpenVRSystem::GetVulkanInstanceExtensions( void *userData, uint32_t namesCapacityIn, uint32_t *namesCountOut, char *namesString )

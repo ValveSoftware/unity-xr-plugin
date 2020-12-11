@@ -329,7 +329,7 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::FillDeviceDefin
 
 	auto deviceName = ( *device )->GetDeviceName();
 	if ( !deviceName )
-		return kUnitySubsystemErrorCodeFailure;
+		deviceName = serialNumberString;
 
 	char inputProfileBuffer[kUnityXRStringSize];
 	uint32_t inputProfileSize = OpenVRSystem::Get().GetSystem()->GetStringTrackedDeviceProperty( ( *device )->openVRDeviceIndex,
@@ -350,6 +350,8 @@ UnitySubsystemErrorCode UNITY_INTERFACE_API OpenVRInputProvider::FillDeviceDefin
 			s_Input->DeviceDefinition_AddFeatureWithUsage( deviceDefinition, "TrackingState", kUnityXRInputFeatureTypeDiscreteStates, kUnityXRInputFeatureUsageTrackingState );
 		hmdFeatureIndices[static_cast< int >( HMDFeature::IsTracked )] =
 			s_Input->DeviceDefinition_AddFeatureWithUsage( deviceDefinition, "IsTracked", kUnityXRInputFeatureTypeBinary, kUnityXRInputFeatureUsageIsTracked );
+		hmdFeatureIndices[static_cast< int >( HMDFeature::UserPresence )] =
+			s_Input->DeviceDefinition_AddFeatureWithUsage( deviceDefinition, "UserPresence", kUnityXRInputFeatureTypeBinary, kUnityXRInputFeatureUsageUserPresence );
 		hmdFeatureIndices[static_cast< int >( HMDFeature::DevicePosition )] =
 			s_Input->DeviceDefinition_AddFeatureWithUsage( deviceDefinition, "Device - Position", kUnityXRInputFeatureTypeAxis3D, kUnityXRInputFeatureUsageDevicePosition );
 		hmdFeatureIndices[static_cast< int >( HMDFeature::DeviceRotation )] =
@@ -539,6 +541,10 @@ UnitySubsystemErrorCode OpenVRInputProvider::Internal_UpdateDeviceState(
 		s_Input->DeviceState_SetDiscreteStateValue( deviceState,
 			hmdFeatureIndices[static_cast< int >( HMDFeature::TrackingState )], trackingState );
 		s_Input->DeviceState_SetBinaryValue( deviceState, hmdFeatureIndices[static_cast< int >( HMDFeature::IsTracked )], trackingPose.bPoseIsValid );
+
+		vr::EDeviceActivityLevel activityLevel = OpenVRSystem::Get().GetSystem()->GetTrackedDeviceActivityLevel(vr::k_unTrackedDeviceIndex_Hmd);
+		bool present = activityLevel == vr::k_EDeviceActivityLevel_UserInteraction;
+		s_Input->DeviceState_SetBinaryValue( deviceState, hmdFeatureIndices[static_cast< int >( HMDFeature::UserPresence )], present ); 
 
 		UnityXRVector3 devicePosition, deviceVelocity, deviceAngularVelocity;
 		UnityXRVector4 deviceRotation;
@@ -953,8 +959,15 @@ void OpenVRInputProvider::GfxThread_UpdateDevices()
 	vr::TrackedDevicePose_t trackedDevicesCurrent[vr::k_unMaxTrackedDeviceCount];
 	vr::TrackedDevicePose_t trackedDevicesFuture[vr::k_unMaxTrackedDeviceCount];
 
-	OpenVRSystem::Get().GetCompositor()->WaitGetPoses( trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount,
-		trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+	if ( UserProjectSettings::GetInitializationType() == vr::VRApplication_Overlay )
+	{
+		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.0f, trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount );
+		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.011f, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+	}
+	else
+	{
+		OpenVRSystem::Get().GetCompositor()->WaitGetPoses( trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+	}
 
 	GfxThread_UpdateConnectedDevices( trackedDevicesCurrent );
 	GfxThread_CopyPoses( trackedDevicesCurrent, trackedDevicesFuture );

@@ -22,6 +22,8 @@ namespace Unity.XR.OpenVR
         private const int maxEventsPerUpdate = 64;
         private static bool debugLogAllEvents = false;
 
+        private static bool enabled = true;
+
         public static void Initialize(bool lazyLoadEvents = false)
         {
             instance = new OpenVREvents(lazyLoadEvents);
@@ -34,6 +36,12 @@ namespace Unity.XR.OpenVR
 
         public OpenVREvents(bool lazyLoadEvents = false)
         {
+            if (OpenVRHelpers.IsUsingSteamVRInput())
+            {
+                enabled = false; //let the steamvr plugin handle events
+                return;
+            }
+
             instance = this;
             events = new OpenVREvent[(int)EVREventType.VREvent_VendorSpecific_Reserved_End];
 
@@ -66,6 +74,12 @@ namespace Unity.XR.OpenVR
         }
         public void Add(EVREventType eventType, UnityAction<VREvent_t> action, bool removeOtherListeners = false)
         {
+            if (!enabled)
+            {
+                Debug.LogError("[OpenVR XR Plugin] This events class is currently not enabled, please use SteamVR_Events instead.");
+                return;
+            }
+
             int eventIndex = (int)eventType;
             if (preloadedEvents == false && events[eventIndex] == null)
             {
@@ -100,7 +114,7 @@ namespace Unity.XR.OpenVR
 
         public void PollEvents()
         {
-            if (Valve.VR.OpenVR.System != null)
+            if (Valve.VR.OpenVR.System != null && enabled)
             {
                 for (int eventIndex = 0; eventIndex < maxEventsPerUpdate; eventIndex++)
                 {
@@ -147,6 +161,6 @@ namespace Unity.XR.OpenVR
             Application.Quit();
 #endif
         }
-#endregion
+        #endregion
     }
 }

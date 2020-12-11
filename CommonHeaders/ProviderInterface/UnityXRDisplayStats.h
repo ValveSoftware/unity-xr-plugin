@@ -10,20 +10,20 @@
 /// @see IUnityXRStats.h
 
 /// Report the time spent by the GPU for the application last frame, in seconds
-const char *const kUnityStatsGPUTimeApp = "GPUAppLastFrameTime";
+const char* const kUnityStatsGPUTimeApp = "GPUAppLastFrameTime";
 
 /// Report the time spent by the GPU for the compositor last frame, in seconds
-const char *const kUnityStatsGPUTimeCompositor = "GPUCompositorLastFrameTime";
+const char* const kUnityStatsGPUTimeCompositor = "GPUCompositorLastFrameTime";
 
 /// Report the number of dropped frames
-const char *const kUnityStatsDroppedFrameCount = "droppedFrameCount";
+const char* const kUnityStatsDroppedFrameCount = "droppedFrameCount";
 
 /// Report the number of times the current frame has been drawn to the device.
-const char *const kUnityStatsFramePresentCount = "framePresentCount";
+const char* const kUnityStatsFramePresentCount = "framePresentCount";
 
 /// Report the HMD’s Refresh rate in frames per second
-const char *const kUnityStatsDisplayRefreshRate = "displayRefreshRate";
+const char* const kUnityStatsDisplayRefreshRate = "displayRefreshRate";
 
 /// Report the latency from when the last predicted tracking information was queried by the application to
 /// when the middle scanline of the target frame is illuminated on the HMD display
-const char *const kUnityStatsMotionToPhoton = "motionToPhoton";
+const char* const kUnityStatsMotionToPhoton = "motionToPhoton";
