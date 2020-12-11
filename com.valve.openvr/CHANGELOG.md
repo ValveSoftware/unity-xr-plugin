@@ -4,6 +4,20 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2020-08-03
+### Added 
+- Added Refresh Rate info to HMD
+- Added User Presence feature to HMD
+### Changed 
+- Fixed a bug when autoenabling the loader
+- Moved common stats to the default accessors
+- Fixed events not always being forwarded when using the SteamVR Unity Plugin
+- Fixed depth texture support
+- Cleaned up device layouts to stop suggesting we support them.
+- Fixed support for overlay applications. They were trying to use scene-app-only APIs
+- Closing xr settings window when open to avoid data corruption
+- Fixed graphicsAdapterId reporting (laptops should use the correct graphics card)
+
 ## [1.0.1] - 2020-08-03
 ### Changed 
 - Updating version of legacyinputhelpers
