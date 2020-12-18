@@ -391,7 +391,7 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 
 	if ( settings.editorAppKey && strlen( settings.editorAppKey ) > 1 )
 	{
-		char *editorAppKey = new char[strlen( settings.editorAppKey )];
+		char *editorAppKey = new char[ strlen( settings.editorAppKey + 1 ) ];
 		strcpy_s( editorAppKey, strlen( settings.editorAppKey ) + 1, settings.editorAppKey );
 		s_UserDefinedSettings.editorAppKey = editorAppKey;
 	}
@@ -400,7 +400,7 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 	{
 		if ( UserProjectSettings::FileExists( std::string( settings.actionManifestPath ) ) )
 		{
-			char *actionManifestPath = new char[strlen( settings.actionManifestPath )];
+			char *actionManifestPath = new char[ strlen( settings.actionManifestPath + 1 ) ];
 			strcpy_s( actionManifestPath, strlen( settings.actionManifestPath ) + 1, settings.actionManifestPath );
 			s_UserDefinedSettings.actionManifestPath = actionManifestPath;
 		}
@@ -422,7 +422,7 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 
 	if ( settings.applicationName && strlen( settings.applicationName ) > 1 )
 	{
-		char *appName = new char[strlen( settings.applicationName )];
+		char *appName = new char[strlen( settings.applicationName + 1 )];
 		strcpy_s( appName, strlen( settings.applicationName ) + 1, settings.applicationName );
 		s_UserDefinedSettings.applicationName = appName;
 	}
