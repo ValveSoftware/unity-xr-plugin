@@ -73,7 +73,7 @@ For developers not building this package from source we have a separate Installe
 
 
 ### SteamVR Input System:
-* Install SteamVR Unity Plugin v2.6.0b4 (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b4)
+* Install SteamVR Unity Plugin v2.6.1+ (https://github.com/ValveSoftware/steamvr_unity_plugin/releases/)
 * It should install the OpenVR XR API package automatically for 2020.1+ for 2019.3/4 you’ll need to add it with the instructions above.
 * Open the SteamVR Input window (Window -> SteamVR Input)
 * Accept the default json

@@ -431,7 +431,7 @@ namespace Unity.XR.OpenVR
         [DllImport("XRSDKOpenVR", CharSet = CharSet.Auto)]
         static extern void RegisterTickCallback([MarshalAs(UnmanagedType.FunctionPtr)] TickCallbackDelegate callbackPointer);
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         delegate void TickCallbackDelegate(int value);
 
         [AOT.MonoPInvokeCallback(typeof(TickCallbackDelegate))]
