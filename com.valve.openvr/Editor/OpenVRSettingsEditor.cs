@@ -27,6 +27,12 @@ namespace Unity.XR.OpenVR.Editor
 
         private SerializedProperty m_MirrorViewMode;
 
+        private const string kPreInit = "PreInit";
+
+        static GUIContent s_PreInit = EditorGUIUtility.TrTextContent("XR SDK PreInit");
+
+        private SerializedProperty m_PreInit;
+
         public GUIContent WindowsTab;
         private int tab = 0;
 
@@ -76,6 +82,10 @@ namespace Unity.XR.OpenVR.Editor
             {
                 m_MirrorViewMode = serializedObject.FindProperty(kMirrorViewModeKey);
             }
+            if (m_PreInit == null)
+            {
+                m_PreInit = serializedObject.FindProperty(kPreInit);
+            }
 
             serializedObject.Update();
 
@@ -89,9 +99,9 @@ namespace Unity.XR.OpenVR.Editor
             if (tab == 0)
             {
                 EditorGUILayout.PropertyField(m_InitializationType, s_InitializationType);
-
                 EditorGUILayout.PropertyField(m_StereoRenderingMode, s_StereoRenderingMode);
                 EditorGUILayout.PropertyField(m_MirrorViewMode, s_MirrorViewMode);
+                EditorGUILayout.PropertyField(m_PreInit, s_PreInit);
             }
             EditorGUILayout.EndVertical();
 
