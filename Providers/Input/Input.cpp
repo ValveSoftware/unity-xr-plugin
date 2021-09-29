@@ -474,7 +474,7 @@ void OpenVRInputProvider::OpenVRToUnityTracking( const vr::TrackedDevicePose_t &
 	if ( postTransform )
 	{
 		XRMatrix4x4 &xrTrackingTransformRef = reinterpret_cast< XRMatrix4x4 & >( trackingToReference );
-		xrTrackingTransformRef *= reinterpret_cast< XRMatrix4x4 & >( *postTransform );
+		xrTrackingTransformRef = reinterpret_cast< XRMatrix4x4 & >( *postTransform ) * xrTrackingTransformRef;
 	}
 
 	outPosition.x = trackingToReference.columns[3].x;
