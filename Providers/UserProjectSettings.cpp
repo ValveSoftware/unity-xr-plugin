@@ -1,4 +1,5 @@
 #pragma once
+#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS TRUE
 
 #include "UserProjectSettings.h"
 #include "CommonTypes.h"
@@ -16,6 +17,11 @@
 #endif
 #include <sys/stat.h>
 #include <algorithm>
+
+#include <locale>
+#include <codecvt>        
+#include <cstdint>      
+#include <sstream>   
 
 #ifdef __linux__
 #define MAX_PATH PATH_MAX
@@ -150,6 +156,43 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 	}
 }
 
+std::string decode_utf8( uint32_t cp )
+{
+	std::wstring_convert< std::codecvt_utf8< char >, char > conv;
+	return conv.to_bytes( ( char )cp );
+}
+
+std::string string_to_utf8( std::string str )
+{
+	std::string::size_type startIdx = 0;
+	std::string::size_type endIdx = 0;
+	do
+	{
+		startIdx = str.find( "\\u", startIdx );
+		if ( startIdx == std::string::npos )
+			break;
+
+		endIdx = str.find_first_not_of( "0123456789abcdefABCDEF", startIdx + 2 );
+		if ( endIdx == std::string::npos )
+			break;
+
+		std::string tmpStr = str.substr( startIdx + 2, endIdx - ( startIdx + 2 ) );
+		std::istringstream iss( tmpStr );
+
+		uint32_t cp;
+		if ( iss >> std::hex >> cp )
+		{
+			std::string utf8 = decode_utf8( cp );
+			str.replace( startIdx, 2 + tmpStr.length(), utf8 );
+			startIdx += utf8.length();
+		}
+		else
+			startIdx += 2;
+	} while ( endIdx != std::string::npos );
+
+	return str;
+}
+
 bool UserProjectSettings::FindSettingAndGetValue( const std::string &line, const std::string &lineKey, std::string &lineValue )
 {
 	size_t index = line.find( lineKey );
@@ -162,6 +205,8 @@ bool UserProjectSettings::FindSettingAndGetValue( const std::string &line, const
 
 		lineValue = line.substr( index + lineKey.length(), line.length() - index );
 
+		lineValue = string_to_utf8( lineValue.c_str() );
+
 		if ( lineValue.length() > 0 )
 		{
 			return true;
@@ -172,8 +217,22 @@ bool UserProjectSettings::FindSettingAndGetValue( const std::string &line, const
 
 std::string UserProjectSettings::GetCurrentWorkingPath()
 {
-	char temp[MAX_PATH];
-	return ( _getcwd( temp, sizeof( temp ) ) ? std::string( temp ) : std::string( "" ) );
+	WCHAR temp[MAX_PATH];
+	if ( _wgetcwd( temp, MAX_PATH ) ) // pretty sure this is returning bullocks
+	{
+		std::wstring string_to_convert = std::wstring( temp );
+
+		//setup converter
+		using convert_type = std::codecvt_utf8<wchar_t>;
+		std::wstring_convert<convert_type, wchar_t> converter;
+
+		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+		return converter.to_bytes( string_to_convert );
+	}
+	else
+	{
+		return std::string( "" );
+	}
 }
 
 std::string UserProjectSettings::GetExecutablePath()
@@ -408,6 +467,8 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 		}
 		else
 		{
+			XR_TRACE( "[OpenVR] [path] %s\n", UserProjectSettings::GetCurrentWorkingPath().c_str() );
+
 			std::string fullPath = UserProjectSettings::GetCurrentWorkingPath() + "\\Assets\\" + settings.actionManifestPath;
 			char *actionManifestPath = new char[fullPath.size() + 1];
 			std::copy( fullPath.begin(), fullPath.end(), actionManifestPath );
