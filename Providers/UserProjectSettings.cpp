@@ -215,10 +215,11 @@ bool UserProjectSettings::FindSettingAndGetValue( const std::string &line, const
 	return false;
 }
 
+#ifndef __linux__
 std::string UserProjectSettings::GetCurrentWorkingPath()
 {
 	WCHAR temp[MAX_PATH];
-	if ( _wgetcwd( temp, MAX_PATH ) ) // pretty sure this is returning bullocks
+	if ( _wgetcwd( temp, MAX_PATH ) ) 
 	{
 		std::wstring string_to_convert = std::wstring( temp );
 
@@ -234,6 +235,21 @@ std::string UserProjectSettings::GetCurrentWorkingPath()
 		return std::string( "" );
 	}
 }
+#else
+std::string UserProjectSettings::GetCurrentWorkingPath()
+{
+	char temp[MAX_PATH];
+	if ( _getcwd( temp, MAX_PATH ) ) 
+	{
+		return std::string( temp );
+	}
+	else
+	{
+		return std::string( "" );
+	}
+}
+#endif
+
 
 std::string UserProjectSettings::GetExecutablePath()
 {
