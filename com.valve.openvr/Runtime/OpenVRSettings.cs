@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using UnityEngine;
 
 #if UNITY_XR_MANAGEMENT
@@ -122,8 +125,17 @@ namespace Unity.XR.OpenVR
                 productName = "unnamed_product";
             else
             {
-                productName = System.Text.RegularExpressions.Regex.Replace(Application.productName, "[^\\w\\._]", "");
+                productName = System.Text.RegularExpressions.Regex.Replace(productName, "[^\\w\\._]", "");
                 productName = productName.ToLower();
+                productName = string.Concat(productName.Normalize(NormalizationForm.FormD).Where(
+                    c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark));
+                byte[] bytes = Encoding.ASCII.GetBytes(productName);
+                char[] chars = Encoding.ASCII.GetChars(bytes);
+                productName = new String(chars).Replace("?", "");
+                if (productName.Length == 0)
+                {
+                    productName = Mathf.Abs(Application.productName.GetHashCode()).ToString();
+                }
             }
 
             return productName;
