@@ -544,7 +544,7 @@ void UserProjectSettings::Initialize()
 			wstring wSettingsPath = UTF8to16( settingsPath );
 			infile.open( wSettingsPath );
 #else
-			infile.open( wSettingsPath );
+			infile.open( settingsPath );
 #endif
 
 		}
