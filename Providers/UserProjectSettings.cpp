@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS TRUE
 
 #include "UserProjectSettings.h"
@@ -6,9 +6,14 @@
 #include "UnityInterfaces.h"
 #include "Display/Display.h"
 
+using namespace std;
+using namespace std::string_view_literals;
+using namespace std::string_literals;
+
 #ifdef _WIN32
 #include <windows.h>    //GetModuleFileNameW
 #include <direct.h>
+#include <comdef.h> 
 #else
 #include <limits.h>
 #include <unistd.h>     //readlink
@@ -58,10 +63,48 @@ const std::string kMirrorViewMode = "MirrorView:";
 #ifdef __linux__
 const std::string kStreamingAssetsFilePath = "StreamingAssets/SteamVR/OpenVRSettings.asset";
 #else
-const std::string kStreamingAssetsFilePath = "StreamingAssets\\SteamVR\\OpenVRSettings.asset";
+const string kStreamingAssetsFilePath = "StreamingAssets\\SteamVR\\OpenVRSettings.asset";
 #endif
 
-const std::string kVSDebugPath = "..\\..\\";
+const string kVSDebugPath = "..\\..\\";
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+typedef std::codecvt_utf8< wchar_t > convert_type;
+
+std::string UTF16to8( const wchar_t *in )
+{
+	static std::wstring_convert< convert_type, wchar_t > s_converter;  // construction of this can be expensive (or even serialized) depending on locale
+
+	try
+	{
+		return s_converter.to_bytes( in );
+	}
+	catch ( ... )
+	{
+		return std::string();
+	}
+}
+
+std::string UTF16to8( const std::wstring &in ) { return UTF16to8( in.c_str() ); }
+
+
+std::wstring UTF8to16( const char *in )
+{
+	static std::wstring_convert< convert_type, wchar_t > s_converter;  // construction of this can be expensive (or even serialized) depending on locale
+
+	try
+	{
+		return s_converter.from_bytes( in );
+	}
+	catch ( ... )
+	{
+		return std::wstring();
+	}
+}
+
+std::wstring UTF8to16( const std::string &in ) { return UTF8to16( in.c_str() ); }
 
 
 std::string UserProjectSettings::GetInitStartupInfo()
@@ -94,7 +137,7 @@ std::string UserProjectSettings::GetInitStartupInfo()
 		{
 			startupInfo += ",\n";
 		}
-		std::string actionManifestPath = std::string( s_UserDefinedSettings.actionManifestPath );
+		string actionManifestPath = s_UserDefinedSettings.actionManifestPath;
 		std::replace( actionManifestPath.begin(), actionManifestPath.end(), '\\', '/' );
 		startupInfo += "\t\"action_manifest_path\": \"" + actionManifestPath + "\"";
 		hasData = true;
@@ -115,6 +158,8 @@ std::string UserProjectSettings::GetInitStartupInfo()
 std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory )
 {
 	std::string exePath = GetExecutablePath();
+
+	XR_TRACE( "[OpenVR] Initializing application at: %s\n", exePath.c_str() );
 
 	char fullExePath[MAX_PATH];
 	strcpy_s( fullExePath, exePath.c_str() );
@@ -156,42 +201,6 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 	}
 }
 
-std::string decode_utf8( uint32_t cp )
-{
-	std::wstring_convert< std::codecvt_utf8< char >, char > conv;
-	return conv.to_bytes( ( char )cp );
-}
-
-std::string string_to_utf8( std::string str )
-{
-	std::string::size_type startIdx = 0;
-	std::string::size_type endIdx = 0;
-	do
-	{
-		startIdx = str.find( "\\u", startIdx );
-		if ( startIdx == std::string::npos )
-			break;
-
-		endIdx = str.find_first_not_of( "0123456789abcdefABCDEF", startIdx + 2 );
-		if ( endIdx == std::string::npos )
-			break;
-
-		std::string tmpStr = str.substr( startIdx + 2, endIdx - ( startIdx + 2 ) );
-		std::istringstream iss( tmpStr );
-
-		uint32_t cp;
-		if ( iss >> std::hex >> cp )
-		{
-			std::string utf8 = decode_utf8( cp );
-			str.replace( startIdx, 2 + tmpStr.length(), utf8 );
-			startIdx += utf8.length();
-		}
-		else
-			startIdx += 2;
-	} while ( endIdx != std::string::npos );
-
-	return str;
-}
 
 bool UserProjectSettings::FindSettingAndGetValue( const std::string &line, const std::string &lineKey, std::string &lineValue )
 {
@@ -204,8 +213,6 @@ bool UserProjectSettings::FindSettingAndGetValue( const std::string &line, const
 		}
 
 		lineValue = line.substr( index + lineKey.length(), line.length() - index );
-
-		lineValue = string_to_utf8( lineValue.c_str() );
 
 		if ( lineValue.length() > 0 )
 		{
@@ -221,14 +228,7 @@ std::string UserProjectSettings::GetCurrentWorkingPath()
 	WCHAR temp[MAX_PATH];
 	if ( _wgetcwd( temp, MAX_PATH ) ) 
 	{
-		std::wstring string_to_convert = std::wstring( temp );
-
-		//setup converter
-		using convert_type = std::codecvt_utf8<wchar_t>;
-		std::wstring_convert<convert_type, wchar_t> converter;
-
-		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
-		return converter.to_bytes( string_to_convert );
+		return UTF16to8( temp );
 	}
 	else
 	{
@@ -250,14 +250,14 @@ std::string UserProjectSettings::GetCurrentWorkingPath()
 }
 #endif
 
-
 std::string UserProjectSettings::GetExecutablePath()
 {
 #ifdef _WIN32
-	char path[MAX_PATH] = { 0 };
-	GetModuleFileNameA( NULL, path, MAX_PATH );
-	return std::string( path );
-#else
+	WCHAR wpath[MAX_PATH] = { 0 };
+	HMODULE hModule = GetModuleHandle( NULL );
+	GetModuleFileNameW( hModule, wpath, MAX_PATH );
+	return UTF16to8( wpath );
+#else	
 	char result[PATH_MAX];
 	ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
 	return std::string( result, ( count > 0 ) ? count : 0 );
@@ -415,24 +415,41 @@ const char *GetMirrorViewModeString( unsigned short nMirrorViewMode )
 
 bool UserProjectSettings::FileExists( const std::string &fileName )
 {
+	#ifndef __linux__
+	wstring wfileName = UTF8to16( fileName );
+	std::ifstream infile( wfileName );
+	#else
 	std::ifstream infile( fileName );
+	#endif
 	return infile.good();
 }
 
 bool UserProjectSettings::DirectoryExists( const char *const path )
 {
+#ifndef __linux__
+	struct _stat64i32 info;
+	wstring wPath = UTF8to16( path );
+	int statRC = _wstat( wPath.c_str(), &info );
+#else
 	struct stat info;
-
+	wstring wPath = UTF8to16( path );
 	int statRC = stat( path, &info );
+#endif
+
 	if ( statRC != 0 )
 	{
 		if ( errno == ENOENT ) { return false; } // something along the path does not exist
 		if ( errno == ENOTDIR ) { return false; } // something in path prefix is not a dir
 		return false;
 	}
-
-	return ( info.st_mode & S_IFDIR ) ? true : false;
+	
+	if ( info.st_mode & S_IFDIR )
+	{
+		return true;
+	}
+	return false;
 }
+
 extern "C" uint16_t UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API
 GetMirrorViewMode()
 {
@@ -517,57 +534,61 @@ void UserProjectSettings::Initialize()
 		std::string projectDirectoryPath = GetProjectDirectoryPath( true );
 		std::string settingsPath = projectDirectoryPath + kStreamingAssetsFilePath;
 
-		if ( FileExists( settingsPath ) )
+		bool settingsFileExists = FileExists( settingsPath );
+		std::ifstream infile;
+
+		if ( settingsFileExists )
 		{
-			UserDefinedSettings settings;
-
-			std::string line;
-			std::ifstream infile;
-			infile.open( settingsPath );
-			if ( infile.is_open() )
-			{
-				while ( getline( infile, line ) )
-				{
-					std::string lineValue;
-
-					if ( FindSettingAndGetValue( line, kStereoRenderingMode, lineValue ) )
-					{
-						settings.stereoRenderingMode = (unsigned short )std::stoi( lineValue );
-					}
-					else if ( FindSettingAndGetValue( line, kInitializationType, lineValue ) )
-					{
-						settings.initializationType = (unsigned short )std::stoi( lineValue );
-					}
-					else if ( FindSettingAndGetValue( line, kMirrorViewMode, lineValue ) )
-					{
-						settings.mirrorViewMode = (unsigned short )std::stoi( lineValue );
-					}
-					/*else if ( FindSettingAndGetValue( line, kEditorAppKey, lineValue ) ) //only for in editor
-					{
-						Trim( lineValue );
-						char editorAppKey[MAX_PATH];
-						strcpy(editorAppKey, lineValue.c_str());
-						settings.editorAppKey = editorAppKey;
-					}*/
-					else if ( FindSettingAndGetValue( line, kActionManifestFilePath, lineValue ) )
-					{
-						Trim( lineValue );
-						lineValue = projectDirectoryPath + lineValue;
-
-						char actionManifestPath[MAX_PATH];
-						strcpy_s( actionManifestPath, lineValue.c_str() );
-						settings.actionManifestPath = actionManifestPath;
-					}
-				}
-				infile.close();
-			}
-
-			SetUserDefinedSettings( settings );
+			wstring wSettingsPath = UTF8to16( settingsPath );
+			infile.open( wSettingsPath );
 		}
 		else
 		{
 			XR_TRACE( "[OpenVR] [ERROR] Not initialized by Unity and could not find settings file. Searched paths: \n\t'%s'\n\t'%s'\n",
 				( projectDirectoryPath + kStreamingAssetsFilePath ).c_str(), settingsPath.c_str() );
 		}
+
+		UserDefinedSettings settings;
+
+		std::string line;
+		if ( infile.is_open() )
+		{
+			while ( getline( infile, line ) )
+			{
+				std::string lineValue;
+
+				if ( FindSettingAndGetValue( line, kStereoRenderingMode, lineValue ) )
+				{
+					settings.stereoRenderingMode = ( unsigned short )std::stoi( lineValue );
+				}
+				else if ( FindSettingAndGetValue( line, kInitializationType, lineValue ) )
+				{
+					settings.initializationType = ( unsigned short )std::stoi( lineValue );
+				}
+				else if ( FindSettingAndGetValue( line, kMirrorViewMode, lineValue ) )
+				{
+					settings.mirrorViewMode = ( unsigned short )std::stoi( lineValue );
+				}
+				/*else if ( FindSettingAndGetValue( line, kEditorAppKey, lineValue ) ) //only for in editor
+				{
+					Trim( lineValue );
+					char editorAppKey[MAX_PATH];
+					strcpy(editorAppKey, lineValue.c_str());
+					settings.editorAppKey = editorAppKey;
+				}*/
+				else if ( FindSettingAndGetValue( line, kActionManifestFilePath, lineValue ) )
+				{
+					Trim( lineValue );
+					lineValue = projectDirectoryPath + lineValue;
+
+					char actionManifestPath[MAX_PATH];
+					strcpy_s( actionManifestPath, lineValue.c_str() );
+					settings.actionManifestPath = actionManifestPath;
+				}
+			}
+			infile.close();
+		}
+
+		SetUserDefinedSettings( settings );
 	}
 }
