@@ -68,6 +68,8 @@ const string kStreamingAssetsFilePath = "StreamingAssets\\SteamVR\\OpenVRSetting
 
 const string kVSDebugPath = "..\\..\\";
 
+
+#ifndef __linux__
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -105,7 +107,7 @@ std::wstring UTF8to16( const char *in )
 }
 
 std::wstring UTF8to16( const std::string &in ) { return UTF8to16( in.c_str() ); }
-
+#endif
 
 std::string UserProjectSettings::GetInitStartupInfo()
 {
@@ -432,7 +434,6 @@ bool UserProjectSettings::DirectoryExists( const char *const path )
 	int statRC = _wstat( wPath.c_str(), &info );
 #else
 	struct stat info;
-	wstring wPath = UTF8to16( path );
 	int statRC = stat( path, &info );
 #endif
 
@@ -539,8 +540,13 @@ void UserProjectSettings::Initialize()
 
 		if ( settingsFileExists )
 		{
+#ifndef __linux__
 			wstring wSettingsPath = UTF8to16( settingsPath );
 			infile.open( wSettingsPath );
+#else
+			infile.open( wSettingsPath );
+#endif
+
 		}
 		else
 		{
