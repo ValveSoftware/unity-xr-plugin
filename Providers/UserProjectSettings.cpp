@@ -197,8 +197,9 @@ std::string UserProjectSettings::GetProjectDirectoryPath( bool bAddDataDirectory
 		}
 		return projectDirectoryPath;
 		#else
-		projectDirectoryName = RemoveFileExtension( std::string( basename( fullExePath ) ) + "_Data/" );
-		return basePath + projectDirectoryName;
+		size_t lastindex = exePath.find_last_of("."); 
+		string projectPath = exePath.substr(0, lastindex); 
+		return projectPath + "_Data/";
 		#endif
 	}
 }
