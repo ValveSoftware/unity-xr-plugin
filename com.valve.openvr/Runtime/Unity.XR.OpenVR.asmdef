@@ -1,11 +1,13 @@
 {
     "name": "Unity.XR.OpenVR",
+    "rootNamespace": "",
     "references": [
         "Unity.XR.Management",
         "Unity.InputSystem"
     ],
     "includePlatforms": [
         "Editor",
+        "LinuxStandalone64",
         "WSA",
         "WindowsStandalone32",
         "WindowsStandalone64"
