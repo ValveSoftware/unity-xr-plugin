@@ -6,6 +6,7 @@ using UnityEditor.Callbacks;
 using System.IO;
 using System;
 using System.Linq;
+using System.Text;
 
 #if UNITY_XR_MANAGEMENT
 using UnityEngine.XR;
@@ -96,7 +97,6 @@ namespace Unity.XR.OpenVR.Editor
 
             Debug.Log("settingsAssetPath: " + settingsAssetPath);
 
-            FileInfo currentSettingsPath = new FileInfo(settingsAssetPath);
             FileInfo newSettingsPath = new FileInfo(Path.Combine(streamingSteamVR, "OpenVRSettings.asset"));
 
             if (newSettingsPath.Exists)
@@ -105,9 +105,23 @@ namespace Unity.XR.OpenVR.Editor
                 newSettingsPath.Delete();
             }
 
-            File.Copy(currentSettingsPath.FullName, newSettingsPath.FullName);
+            //File.Copy(currentSettingsPath.FullName, newSettingsPath.FullName);
+            File.WriteAllText(newSettingsPath.FullName, CreateSettingText());
+            Debug.Log("Wrote openvr settings to build directory: " + newSettingsPath.FullName);
+            //Debug.Log("Copied openvr settings to build directory: " + newSettingsPath.FullName);
+        }
 
-            Debug.Log("Copied openvr settings to build directory: " + newSettingsPath.FullName);
+
+        private static string CreateSettingText()
+        {
+            OpenVRSettings settings = OpenVRSettings.GetSettings();
+            StringBuilder text = new StringBuilder();
+            text.AppendLine("StereoRenderingMode: " + (int)settings.StereoRenderingMode);
+            text.AppendLine("InitializationType: " + (int)settings.InitializationType);
+            text.AppendLine("EditorAppKey: " + settings.EditorAppKey);
+            text.AppendLine("ActionManifestFileRelativeFilePath: " + settings.ActionManifestFileRelativeFilePath);
+            text.AppendLine("MirrorView: " + (int)settings.MirrorView);
+            return text.ToString();
         }
     }
 }
