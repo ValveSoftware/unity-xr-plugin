@@ -59,10 +59,10 @@ jobs:
         $global:LASTEXITCODE = 0
 
     - name: Push modified binaries
-      uses: ad-m/github-push-action@${{ github.ref }}
+      uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: master
+        branch: ${{ github.ref }}
         
   build-linux:
     needs: build-windows
@@ -105,4 +105,4 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: master
+        branch: ${{ github.ref }}
