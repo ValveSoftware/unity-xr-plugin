@@ -2,7 +2,7 @@ name: Build binaries
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, linux2 ]
     paths-ignore:
       - com.valve.openvr/Runtime/x64/**
       - com.valve.openvr/Runtime/x86/**
