@@ -262,8 +262,13 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_Start( UnityXRRendering
 		m_eActiveTextureType = vr::TextureType_Vulkan;
 		break;
 
+	case kUnityGfxRendererOpenGLCore:
+	case kUnityGfxRendererOpenGLES30:
+		m_eActiveTextureType = vr::TextureType_OpenGL;
+		break;
+
 	default:
-		XR_TRACE( "[OpenVR] [Error] Unsupported graphics api! Only DirectX and Vulkan are supported at this time." );
+		XR_TRACE( "[OpenVR] [Error] Unsupported graphics api. Only DirectX, OpenGL and Vulkan are supported at this time." );
 		return kUnitySubsystemErrorCodeFailure;
 		break;
 	}
