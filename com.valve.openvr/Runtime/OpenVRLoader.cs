@@ -443,7 +443,16 @@ namespace Unity.XR.OpenVR
 #if UNITY_EDITOR
         public string GetPreInitLibraryName(BuildTarget buildTarget, BuildTargetGroup buildTargetGroup)
         {
-            return "XRSDKOpenVR";
+            OpenVRSettings settings = OpenVRSettings.GetSettings();
+
+            // Operate normally if we have PreInit enabled.
+            if (settings != null && settings.PreInit) 
+            {
+                return "XRSDKOpenVR";
+            }
+
+            // Returning null prevents XRSDKPreInit.
+            return null;
         }
 
         private static void DisableTickOnReload()

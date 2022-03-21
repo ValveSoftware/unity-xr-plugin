@@ -62,6 +62,9 @@ namespace Unity.XR.OpenVR
         [SerializeField, Tooltip("Which eye to use when rendering the headset view to the main window (none, left, right, or a composite of both + OpenVR overlays)")]
         public MirrorViewModes MirrorView = MirrorViewModes.Right;
 
+        [SerializeField, Tooltip("Should the library interface with XR SDK PreInit.")]
+        public bool PreInit = false;
+
         public const string StreamingAssetsFolderName = "SteamVR";
         public const string ActionManifestFileName = "legacy_manifest.json";
         public static string GetStreamingSteamVRPath(bool create = true)
