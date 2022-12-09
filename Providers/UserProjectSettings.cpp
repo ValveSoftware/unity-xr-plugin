@@ -491,31 +491,41 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 		s_UserDefinedSettings.editorAppKey = editorAppKey;
 	}
 
-	if ( settings.actionManifestPath && strlen( settings.actionManifestPath ) > 1 )
+	if ( settings.actionManifestPath )
 	{
-		if ( UserProjectSettings::FileExists( std::string( settings.actionManifestPath ) ) )
-		{
-			size_t strLen = strlen( settings.actionManifestPath ) + 1;
-			char *actionManifestPath = new char[ strLen ];
-			strcpy_s( actionManifestPath, strLen, settings.actionManifestPath );
-			s_UserDefinedSettings.actionManifestPath = actionManifestPath;
-		}
-		else
-		{
-			XR_TRACE( "[OpenVR] [path] %s\n", UserProjectSettings::GetCurrentWorkingPath().c_str() );
+		size_t actionManifestPathLength = strlen( settings.actionManifestPath );
 
-			std::string fullPath = UserProjectSettings::GetCurrentWorkingPath() + "\\Assets\\" + settings.actionManifestPath;
-			char *actionManifestPath = new char[fullPath.size() + 1];
-			std::copy( fullPath.begin(), fullPath.end(), actionManifestPath );
-			actionManifestPath[fullPath.size()] = '\0';
-			s_UserDefinedSettings.actionManifestPath = actionManifestPath;
+		if ( actionManifestPathLength > 1 ) 
+		{
+			std::string actionManifestPath = settings.actionManifestPath;
+			std::replace( actionManifestPath.begin(), actionManifestPath.end(), '\\', '/' );
+			char *updatedActionManifestPath = new char[ actionManifestPathLength ];
+			std::copy( actionManifestPath.begin(), actionManifestPath.end(), updatedActionManifestPath );
+			settings.actionManifestPath = updatedActionManifestPath;
 
-			if ( UserProjectSettings::FileExists( fullPath ) == false )
+			if ( UserProjectSettings::FileExists( std::string( settings.actionManifestPath ) ) )
 			{
-				XR_TRACE( "[OpenVR] [Error] Action manifest file does not exist at path (%s)\n", actionManifestPath );
+				size_t strLen = strlen( settings.actionManifestPath ) + 1;
+				char *actionManifestPath = new char[ strLen ];
+				strcpy_s( actionManifestPath, strLen, settings.actionManifestPath );
+				s_UserDefinedSettings.actionManifestPath = actionManifestPath;
+			}
+			else
+			{
+				XR_TRACE( "[OpenVR] [path] %s\n", UserProjectSettings::GetCurrentWorkingPath().c_str() );
+
+				std::string fullPath = UserProjectSettings::GetCurrentWorkingPath() + "\\Assets\\" + settings.actionManifestPath;
+				char *actionManifestPath = new char[fullPath.size() + 1];
+				std::copy( fullPath.begin(), fullPath.end(), actionManifestPath );
+				actionManifestPath[fullPath.size()] = '\0';
+				s_UserDefinedSettings.actionManifestPath = actionManifestPath;
+
+				if ( UserProjectSettings::FileExists( fullPath ) == false )
+				{
+					XR_TRACE( "[OpenVR] [Error] Action manifest file does not exist at path (%s)\n", actionManifestPath );
+				}
 			}
 		}
-
 	}
 
 	if ( settings.applicationName && strlen( settings.applicationName ) > 1 )
