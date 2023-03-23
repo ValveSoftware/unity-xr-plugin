@@ -443,7 +443,7 @@ namespace Unity.XR.OpenVR
 #if UNITY_EDITOR
         public string GetPreInitLibraryName(BuildTarget buildTarget, BuildTargetGroup buildTargetGroup)
         {
-            return "XRSDKOpenVR";
+            return null;
         }
 
         private static void DisableTickOnReload()

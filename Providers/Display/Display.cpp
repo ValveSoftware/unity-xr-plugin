@@ -763,9 +763,9 @@ bool OpenVRDisplayProvider::SubmitToCompositor( vr::EVREye eEye, int nStage )
 	tex.eColorSpace = vr::ColorSpace_Auto;
 
 	// Check if we have a valid depth buffer
-	if (m_pNativeDepthTextures[eEye][nStage])
+	if (m_pNativeDepthTextures[nStage][nTexIndex])
 	{
-		tex.depth.handle = m_pNativeDepthTextures[eEye][nStage];
+		tex.depth.handle = m_pNativeDepthTextures[nStage][nTexIndex];
 	}
 
 	if ( !m_bIsOverlayApplication )
