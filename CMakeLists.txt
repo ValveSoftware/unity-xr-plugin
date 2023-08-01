@@ -46,10 +46,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif()
 
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	
+	message(STATUS "Found MSVC version ${MSVC_VERSION} in system")
 	if(${MSVC_VERSION} VERSION_LESS 1919)
 		set(PDBFILE "vc141.pdb")
-	else()
+	elseif(${MSVC_VERSION} VERSION_LESS 1936)
 		set(PDBFILE "vc142.pdb")
+	else()
+		set(PDBFILE "vc143.pdb")
 	endif()
 
 	add_definitions(-D_WIN32)
@@ -170,9 +174,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 					${CMAKE_SOURCE_DIR}/lib/${PLATFORMX}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
 					${BINARY_PATH}/${OPENVR_API_NAME}.${IMPORT_LIB_TYPE}
 
-			COMMAND ${CMAKE_COMMAND} -E copy
-            	    ${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/${PDBFILE}
-                	${BINARY_PATH}/${PDBFILE}
+			#COMMAND ${CMAKE_COMMAND} -E copy
+            	    #${CMAKE_SOURCE_DIR}/XRSDKOPENVR.dir/Release/${PDBFILE}
+                	#${BINARY_PATH}/${PDBFILE}
 			)
 else()
 	# Post-Build - Copy OpenVR api

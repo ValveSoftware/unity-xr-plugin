@@ -369,7 +369,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_PopulateNextFrameDesc( 
 
 
 	// Calculate culling frustum
-	if ( frameHints->appSetup.singlePassRendering )
+	if ( m_bUseSinglePass )
 	{
 		// Single pass
 		SetupCullingPass( 2, frameHints, nextFrame->cullingPasses[0] );
@@ -1022,6 +1022,26 @@ UnityXRProjection OpenVRDisplayProvider::GetProjection( int eye, float flNear, f
 	ret.data.matrix.columns[0].y = 0.0f;  ret.data.matrix.columns[1].y = y;    ret.data.matrix.columns[2].y = b;   ret.data.matrix.columns[3].y = 0.0f;
 	ret.data.matrix.columns[0].z = 0.0f;  ret.data.matrix.columns[1].z = 0.0f;  ret.data.matrix.columns[2].z = c;   ret.data.matrix.columns[3].z = d;
 	ret.data.matrix.columns[0].w = 0.0f;  ret.data.matrix.columns[1].w = 0.0f;  ret.data.matrix.columns[2].w = e;   ret.data.matrix.columns[3].w = 0.0f;
+
+	//XR_TRACE("%i EYE MATRIX [0][x]: %f \n", eye, x);
+	//XR_TRACE("%i EYE MATRIX [0][y]: %f \n", eye, 0.0f);
+	//XR_TRACE("%i EYE MATRIX [0][z]: %f \n", eye, 0.0f);
+	//XR_TRACE("%i EYE MATRIX [0][w]: %f \n", eye, 0.0f);
+
+	//XR_TRACE("%i EYE MATRIX [1][x]: %f \n", eye, 0.0f);
+	//XR_TRACE("%i EYE MATRIX [1][y]: %f \n", eye, y);
+	//XR_TRACE("%i EYE MATRIX [1][z]: %f \n", eye, 0.0f);
+	//XR_TRACE("%i EYE MATRIX [1][w]: %f \n", eye, 0.0f);
+
+	//XR_TRACE("%i EYE MATRIX [2][x]: %f \n", eye, a);
+	//XR_TRACE("%i EYE MATRIX [2][y]: %f \n", eye, b);
+	//XR_TRACE("%i EYE MATRIX [2][z]: %f \n", eye, c);
+	//XR_TRACE("%i EYE MATRIX [2][w]: %f \n", eye, e);
+
+	//XR_TRACE("%i EYE MATRIX [3][x]: %f \n", eye, 0.0f);
+	//XR_TRACE("%i EYE MATRIX [3][y]: %f \n", eye, 0.0f);
+	//XR_TRACE("%i EYE MATRIX [3][z]: %f \n", eye, d);
+	//XR_TRACE("%i EYE MATRIX [3][w]: %f \n", eye, 0.0f);
 
 	return ret;
 }
