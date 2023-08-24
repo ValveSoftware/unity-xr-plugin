@@ -493,6 +493,15 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 
 	if ( settings.actionManifestPath && strlen( settings.actionManifestPath ) > 1 )
 	{
+		#ifdef __linux__
+		size_t actionManifestPathLength = strlen( settings.actionManifestPath );
+		std::string actionManifestPath = settings.actionManifestPath;
+		std::replace( actionManifestPath.begin(), actionManifestPath.end(), '\\', '/' );
+		char *updatedActionManifestPath = new char[ actionManifestPathLength ];
+		std::copy( actionManifestPath.begin(), actionManifestPath.end(), updatedActionManifestPath );
+		settings.actionManifestPath = updatedActionManifestPath;
+		#endif
+
 		if ( UserProjectSettings::FileExists( std::string( settings.actionManifestPath ) ) )
 		{
 			size_t strLen = strlen( settings.actionManifestPath ) + 1;
@@ -504,7 +513,12 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 		{
 			XR_TRACE( "[OpenVR] [path] %s\n", UserProjectSettings::GetCurrentWorkingPath().c_str() );
 
+			#ifndef __linux__
 			std::string fullPath = UserProjectSettings::GetCurrentWorkingPath() + "\\Assets\\" + settings.actionManifestPath;
+			#else
+			std::string fullPath = UserProjectSettings::GetCurrentWorkingPath() + "/Assets/" + settings.actionManifestPath;
+			#endif
+
 			char *actionManifestPath = new char[fullPath.size() + 1];
 			std::copy( fullPath.begin(), fullPath.end(), actionManifestPath );
 			actionManifestPath[fullPath.size()] = '\0';
