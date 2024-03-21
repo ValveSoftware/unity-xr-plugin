@@ -4271,10 +4271,10 @@ public class CVRInput
 		EVRInputError result = FnTable.GetOriginTrackedDeviceInfo(origin,ref pOriginInfo,unOriginInfoSize);
 		return result;
 	}
-	public EVRInputError GetActionBindingInfo(ulong action,ref InputBindingInfo_t pOriginInfo,uint unBindingInfoSize,uint unBindingInfoCount,ref uint punReturnedBindingInfoCount)
+	public EVRInputError GetActionBindingInfo(ulong action,InputBindingInfo_t [] pOriginInfo,uint unBindingInfoSize,ref uint punReturnedBindingInfoCount)
 	{
 		punReturnedBindingInfoCount = 0;
-		EVRInputError result = FnTable.GetActionBindingInfo(action,ref pOriginInfo,unBindingInfoSize,unBindingInfoCount,ref punReturnedBindingInfoCount);
+		EVRInputError result = FnTable.GetActionBindingInfo(action,pOriginInfo,unBindingInfoSize,(uint) pOriginInfo.Length,ref punReturnedBindingInfoCount);
 		return result;
 	}
 	public EVRInputError ShowActionOrigins(ulong actionSetHandle,ulong ulActionHandle)
