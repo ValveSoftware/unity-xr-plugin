@@ -8,6 +8,7 @@
 #include "OpenVRProviderContext.h"
 
 #include "UnityInterfaces.h"
+#include "CommonTypes.h"
 
 #include "ProviderInterface/IUnityXRDisplay.h"
 #include "ProviderInterface/IUnityGraphics.h"
