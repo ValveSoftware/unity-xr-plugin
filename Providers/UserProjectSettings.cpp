@@ -471,8 +471,9 @@ SetUserDefinedSettings( UserDefinedSettings settings )
 		size_t actionManifestPathLength = strlen( settings.actionManifestPath );
 		std::string actionManifestPath = settings.actionManifestPath;
 		std::replace( actionManifestPath.begin(), actionManifestPath.end(), '\\', '/' );
-		char *updatedActionManifestPath = new char[ actionManifestPathLength ];
+		char *updatedActionManifestPath = new char[ actionManifestPathLength + 1];
 		std::copy( actionManifestPath.begin(), actionManifestPath.end(), updatedActionManifestPath );
+		updatedActionManifestPath[ actionManifestPathLength ] = '\0';
 		settings.actionManifestPath = updatedActionManifestPath;
 		#endif
 
