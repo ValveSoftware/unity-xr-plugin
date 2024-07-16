@@ -1,8 +1,15 @@
 #pragma once
 
-#include "OpenVR/openvr.h"
+#include "UserProjectSettings.h"
+
+#include "CommonTypes.h"
 #include "Singleton.h"
+
+#include "UnityInterfaces.h"
+#include "ProviderInterface/IUnityGraphics.h"
+#include "ProviderInterface/IUnityInterface.h"
 #include "ProviderInterface/IUnityXRPreInit.h"
+
 
 extern "C" typedef void( *TickCallback )( int );
 

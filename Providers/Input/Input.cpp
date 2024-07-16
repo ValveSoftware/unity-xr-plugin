@@ -1,16 +1,10 @@
-#pragma once
-
-#include "Input.h"
-#include "UnityInterfaces.h"
-#include "ProviderInterface/XRMath.h"
-
-#include "UserProjectSettings.h"
-
 #include <cassert>
 #include <array>
 #include <algorithm>
 #include <sstream>
 #include <chrono>
+
+#include "Input.h"
 
 static OpenVRProviderContext *s_pProviderContext;
 static IUnityXRInputInterface *s_Input = nullptr;

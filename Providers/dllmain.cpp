@@ -1,17 +1,14 @@
-#pragma once
-
-#include "ProviderInterface/IUnityInterface.h"
 #include "UnityInterfaces.h"
 #include "CommonTypes.h"
+
+#include "OpenVRSystem.h"
+#include "Display/Display.h"
+#include "Input/Input.h"
+
 #include "ProviderInterface/IUnityXRPreInit.h"
 #include "ProviderInterface/IUnityXRTrace.h"
 #include "ProviderInterface/UnitySubsystemTypes.h"
-
-#include "OpenVRSystem.h"
-#include "OpenVRProviderContext.h"
-#include "Display/Display.h"
-#include "Input/Input.h"
-#include "UserProjectSettings.h"
+#include "ProviderInterface/IUnityInterface.h"
 
 static OpenVRProviderContext *s_pOpenVRProviderContext {};
 

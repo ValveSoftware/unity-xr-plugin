@@ -1,13 +1,6 @@
-#pragma once
+#include <cassert>
 
 #include "OpenVRSystem.h"
-#include "UnityInterfaces.h"
-#include "CommonTypes.h"
-#include "ProviderInterface/IUnityGraphics.h"
-#include "ProviderInterface/IUnityInterface.h"
-#include "UserProjectSettings.h"
-
-#include <cassert>
 
 
 OpenVRSystem::OpenVRSystem() :

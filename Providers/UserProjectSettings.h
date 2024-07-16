@@ -8,6 +8,9 @@
 #include <string>
 
 #include "OpenVR/openvr.h"
+#include "UnityInterfaces.h"
+#include "CommonTypes.h"
+#include "ProviderInterface/IUnityXRDisplay.h"
 
 enum EVRMirrorViewMode
 {

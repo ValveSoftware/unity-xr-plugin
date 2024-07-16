@@ -1,15 +1,19 @@
 #pragma once
 
-#include "ProviderInterface/IUnityXRInput.h"
-#include "OpenVRSystem.h"
-#include "OpenVRProviderContext.h"
-#include "Singleton.h"
-#include "CommonTypes.h"
-
 #include <string>
 #include <optional>
 #include <variant>
 #include <vector>
+
+#include "OpenVRSystem.h"
+#include "OpenVRProviderContext.h"
+
+#include "Singleton.h"
+#include "CommonTypes.h"
+#include "UnityInterfaces.h"
+
+#include "ProviderInterface/XRMath.h"
+#include "ProviderInterface/IUnityXRInput.h"
 
 
 bool RegisterInputLifecycleProvider( OpenVRProviderContext *pOpenProviderContext );

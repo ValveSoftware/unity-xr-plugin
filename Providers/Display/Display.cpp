@@ -1,17 +1,10 @@
-#pragma once
-
-#include "Display.h"
-#include "Input/Input.h"
-#include "UnityInterfaces.h"
-#include "OpenVRProviderContext.h"
-#include "CommonTypes.h"
-#include "ProviderInterface/UnityXRDisplayStats.h"
-#include "ProviderInterface/XRMath.h"
-#include "UserProjectSettings.h"
-
 #ifdef __linux__
 #include <cstring>
 #endif
+
+#include "Display.h"
+#include "Input/Input.h"
+
 
 // Interfaces
 static IUnityXRDisplayInterface *s_pXRDisplay = nullptr;

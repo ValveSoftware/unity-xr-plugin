@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+
 #include "ProviderInterface/IUnityXRDisplay.h"
 
 struct IUnityXRTrace;

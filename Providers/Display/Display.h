@@ -2,12 +2,18 @@
 
 #include <vector>
 #include <limits>
+#include <CommonTypes.h>
 
-#include "ProviderInterface/IUnityXRDisplay.h"
 #include "OpenVRSystem.h"
 #include "OpenVRProviderContext.h"
+
+#include "UnityInterfaces.h"
+
+#include "ProviderInterface/IUnityXRDisplay.h"
 #include "ProviderInterface/IUnityGraphics.h"
 #include "ProviderInterface/IUnityGraphicsVulkan.h"
+#include "ProviderInterface/UnityXRDisplayStats.h"
+#include "ProviderInterface/XRMath.h"
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(WINAPI_FAMILY)
 #include "d3d11.h"
@@ -16,7 +22,6 @@
 #else
 #define XR_WIN 0
 #endif
-#include <CommonTypes.h>
 
 
 #define kPI 3.14159265358979323846264338327950288419716939937510F

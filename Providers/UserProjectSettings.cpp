@@ -1,10 +1,6 @@
-﻿#pragma once
-#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS TRUE
+﻿#define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS TRUE
 
 #include "UserProjectSettings.h"
-#include "CommonTypes.h"
-#include "UnityInterfaces.h"
-#include "Display/Display.h"
 
 using namespace std;
 using namespace std::string_view_literals;
