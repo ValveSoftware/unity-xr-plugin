@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <limits>
-#include <CommonTypes.h>
 
 #include "OpenVRSystem.h"
 #include "OpenVRProviderContext.h"

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "ProviderInterface/IUnityXRTrace.h"
 #include "ProviderInterface/IUnityXRStats.h"
 

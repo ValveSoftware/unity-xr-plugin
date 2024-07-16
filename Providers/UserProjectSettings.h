@@ -12,6 +12,7 @@
 #include <libgen.h>
 #endif  
 
+#include <stdint.h>
 #include <string>
 #include <cassert>
 #include <iostream>
