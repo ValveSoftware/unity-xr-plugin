@@ -2,28 +2,6 @@
 
 #include "UserProjectSettings.h"
 
-using namespace std;
-using namespace std::string_view_literals;
-using namespace std::string_literals;
-
-#ifdef _WIN32
-#include <windows.h>    //GetModuleFileNameW
-#include <direct.h>
-#include <comdef.h> 
-#else
-#include <limits.h>
-#include <unistd.h>     //readlink
-#include <string.h>
-#include <libgen.h>
-#endif
-#include <sys/stat.h>
-#include <algorithm>
-
-#include <locale>
-#include <codecvt>        
-#include <cstdint>      
-#include <sstream>   
-
 #ifdef __linux__
 #define MAX_PATH PATH_MAX
 #define _getcwd getcwd

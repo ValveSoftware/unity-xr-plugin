@@ -1,11 +1,34 @@
 #pragma once
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN 
+#include <windows.h>    //GetModuleFileNameW
+#include <direct.h>
+#include <comdef.h> 
+#else
+#include <limits.h>
+#include <unistd.h>     //readlink
+#include <string.h>
+#include <libgen.h>
+#endif  
+
 #include <string>
 #include <cassert>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <string>
+#include <sys/stat.h>
+#include <algorithm>
+
+#include <locale>
+#include <codecvt>        
+#include <cstdint>      
+#include <sstream> 
+
+using namespace std;
+using namespace std::string_view_literals;
+using namespace std::string_literals;
+
 
 #include "OpenVR/openvr.h"
 #include "UnityInterfaces.h"
