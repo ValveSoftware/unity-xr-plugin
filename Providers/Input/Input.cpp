@@ -955,11 +955,33 @@ void OpenVRInputProvider::GfxThread_UpdateDevices()
 
 	if ( UserProjectSettings::GetInitializationType() == vr::VRApplication_Overlay )
 	{
+		if ( OpenVRSystem::Get().GetOverlay() == nullptr )
+		{
+			XR_TRACE( "[OpenVR] [ERROR] OpenVRSystem::Get().GetOverlay() returned nullptr.\n" );
+			return;
+		}
+
+		overlayError = OpenVRSystem::Get().GetOverlay()->WaitFrameSync(100);
+		if ( overlayError != vr::EVROverlayError::VROverlayError_None )
+		{
+			XR_TRACE( "[OpenVR] [ERROR] Overlay()->WaitFrameSync IVROverlay WaitFrameSync error: %d\n", overlayError );
+			return;
+		}
+
+		float last_vsync_time;
+		OpenVRSystem::Get().GetSystem()->GetTimeSinceLastVsync(&last_vsync_time, nullptr);
+
 		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.0f, trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount );
-		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, 0.011f, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
+		OpenVRSystem::Get().GetSystem()->GetDeviceToAbsoluteTrackingPose( vr::TrackingUniverseStanding, last_vsync_time, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
 	}
 	else
 	{
+		if ( OpenVRSystem::Get().GetCompositor() == nullptr )
+		{
+			XR_TRACE( "[OpenVR] [ERROR] OpenVRSystem::Get().GetCompositor() returned nullptr.\n" );
+			return;
+		}
+
 		OpenVRSystem::Get().GetCompositor()->WaitGetPoses( trackedDevicesCurrent, vr::k_unMaxTrackedDeviceCount, trackedDevicesFuture, vr::k_unMaxTrackedDeviceCount );
 	}
 

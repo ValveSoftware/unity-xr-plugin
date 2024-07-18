@@ -152,6 +152,7 @@ private:
 	static int trackerFeatureIndices[static_cast< int >( TrackerFeature::Total )];
 	static const int kUnityXRInputUpdateTypeCount = 2;
 	bool m_Started = false;
+	vr::EVROverlayError overlayError = vr::EVROverlayError::VROverlayError_None;
 
 	struct OpenVRDevice
 	{

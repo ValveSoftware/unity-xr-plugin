@@ -7,6 +7,7 @@ OpenVRSystem::OpenVRSystem() :
 	m_FrameIndex( 0 ),
 	m_VRSystem( nullptr ),
 	m_VRCompositor( nullptr ),
+	m_VROverlay( nullptr ),
 	initError( vr::VRInitError_None ),
 	tickCallback( nullptr )
 {
@@ -60,20 +61,28 @@ bool OpenVRSystem::Initialize()
 			return false;
 		}
 
-		vr::IVRCompositor *vrCompositor = StartVRCompositor();
-
+		vr::IVRCompositor * vrCompositor = (vr::IVRCompositor*)vr::VR_GetGenericInterface(vr::IVRCompositor_Version, &initError);
 		if ( initError != vr::VRInitError_None )
 		{
 			std::string errorName = vr::VR_GetVRInitErrorAsSymbol( initError );
-			XR_TRACE( ( "[OpenVR] [ERROR] VR_Init initError: " + errorName + "\n" ).c_str() );
+			XR_TRACE( ( "[OpenVR] [ERROR] VR_GetGenericInterface IVRCompositor initError: " + errorName + "\n" ).c_str() );
+			return false;
+		}
+
+		vr::IVROverlay* vrOverlay = (vr::IVROverlay*)vr::VR_GetGenericInterface(vr::IVROverlay_Version, &initError);
+		if ( initError != vr::VRInitError_None )
+		{
+			std::string errorName = vr::VR_GetVRInitErrorAsSymbol( initError );
+			XR_TRACE( ( "[OpenVR] [ERROR] VR_GetGenericInterface IVROverlay initError: " + errorName + "\n" ).c_str() );
 			return false;
 		}
 
 		m_VRSystem = vrSystem;
 		m_VRCompositor = vrCompositor;
+		m_VROverlay = vrOverlay;
 	}
 
-	XR_TRACE( "[OpenVR] is initialized\n" );
+	XR_TRACE( "[OpenVR] initialized successfully. Runtime: %s\n", m_VRSystem->GetRuntimeVersion() );
 	return true;
 }
 

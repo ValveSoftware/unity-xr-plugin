@@ -36,6 +36,7 @@ public:
 
 	vr::IVRSystem *GetSystem() { return m_VRSystem; }
 	vr::IVRCompositor *GetCompositor() { return m_VRCompositor; }
+	vr::IVROverlay* GetOverlay() { return m_VROverlay; }
 
 	void SetTickCallback( TickCallback newTickCallback ) { tickCallback = newTickCallback; }
 
@@ -46,6 +47,7 @@ private:
 	// OpenVR interfaces
 	vr::IVRSystem *m_VRSystem;
 	vr::IVRCompositor *m_VRCompositor;
+	vr::IVROverlay* m_VROverlay;
 
 	vr::EVRInitError initError;
 
