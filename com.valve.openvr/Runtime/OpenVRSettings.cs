@@ -18,6 +18,25 @@ namespace Unity.XR.OpenVR
     [System.Serializable]
     public class OpenVRSettings : ScriptableObject
     {
+        // Convert backslashes in relative paths to forward-slashes for cross-platform compatibility
+        // Windows Volume-prefixed paths and POSIX absolute paths have semantics preserved.
+        // Only call on output paths constructed with System.IO.Path.* on the current platform;
+        // For paths coming from other platforms, forward-slash must be valid or decoded;
+        // This is not necessary here, as forward-slash is valid in all Unity targets.
+        private static string SlashifyPath(string path) {
+            var sep = System.IO.Path.DirectorySeparatorChar;
+            var sepAlt = System.IO.Path.AltDirectorySeparatorChar;
+            // Only convert when both back slashes and forward slashes are semantically valid in the
+            // context of the current platform's Path handling.
+            // Avoids semantic alteration of questionable paths on POSIX systems where backslash is
+            // usually used as an escape character, and are not generally included within the path.
+            if ((sep == '\\' || sepAlt == '\\') && (sep == '/' || sepAlt == '/'))
+            {
+                return path.Replace('\\', '/');
+            }
+            return path;
+        }
+    
         public enum StereoRenderingModes
         {
             MultiPass = 0,
@@ -162,6 +181,7 @@ namespace Unity.XR.OpenVR
 
         public bool InitializeActionManifestFileRelativeFilePath()
         {
+#if UNITY_EDITOR
             string oldPath = ActionManifestFileRelativeFilePath;
             string newPath;
 
@@ -174,13 +194,14 @@ namespace Unity.XR.OpenVR
 
                 if (newPath.StartsWith("Assets"))
                     newPath = newPath.Remove(0, "Assets".Length + 1);
+
+                newPath = SlashifyPath(newPath);
             }
             else
             {
                 newPath = null;
             }
 
-#if UNITY_EDITOR
             if (newPath != oldPath)
             {
                 ActionManifestFileRelativeFilePath = newPath;
@@ -205,10 +226,10 @@ namespace Unity.XR.OpenVR
 #else
         public static OpenVRSettings s_Settings;
 
-		public void Awake()
-		{
-			s_Settings = this;
-		}
+        public void Awake()
+        {
+            s_Settings = this;
+        }
 #endif
     }
 }
