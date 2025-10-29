@@ -22,7 +22,7 @@ jobs:
 
     - name: Generate build files (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: cmake -G "Visual Studio 16 2019" .
+      run: cmake -G "Visual Studio 17 2022" -A x64 .
         
     - name: Build binaries (windows x64)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
@@ -39,7 +39,7 @@ jobs:
 
     - name: Generate build files (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
-      run: cmake -G "Visual Studio 16 2019" -A Win32 .
+      run: cmake -G "Visual Studio 17 2022" -A Win32 .
 
     - name: Build binaries (windows x86)
       working-directory: ${{runner.workspace}}/unity-xr-plugin
