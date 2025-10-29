@@ -5,12 +5,12 @@ The purpose of this package is to provide OpenVR rendering to Unity XR. This pac
 ## Subsystems
 
 ### Display 
-The display subsystem provides rendering support for the XR Plugin. It currently supports DirectX 11 and Vulcan.
+The display subsystem provides rendering support for the XR Plugin. It currently supports DirectX 11/12, and Vulcan.
 
 ### Input 
 
 * **SteamVR Input**
-To use the full power of SteamVR we recommend also downloading our SteamVR for Unity plugin. It is in beta [on our github releases page.](https://github.com/ValveSoftware/steamvr_unity_plugin/releases/tag/2.6.0b1) This plugin can run alongside the OpenVR XR plugin. However, you will not be able to query Unity's input functions while using SteamVR Input. The two systems are currently incompatible and you must chose to use one or the other.
+To use the full power of SteamVR we recommend also downloading our SteamVR Unity plugin. It is in beta [on our github releases page.](https://github.com/ValveSoftware/steamvr_unity_plugin/releases/ or on the Unity Asset Store) This plugin can run alongside this OpenVR XR package. However, you will not be able to query Unity's input functions while using SteamVR Input. The two systems are currently incompatible and you must chose to use one or the other.
 
 ## XR Management
 

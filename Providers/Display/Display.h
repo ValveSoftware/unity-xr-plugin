@@ -17,7 +17,9 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(WINAPI_FAMILY)
 #include "d3d11.h"
+#include "d3d12.h"
 #include "ProviderInterface/IUnityGraphicsD3D11.h"
+#include "ProviderInterface/IUnityGraphicsD3D12.h"
 #define XR_WIN 1
 #else
 #define XR_WIN 0
@@ -265,6 +267,11 @@ private:
 
 	/// Holds the OpenVR Vulkan Texture Array data for submitting to the compositor
 	vr::VRVulkanTextureArrayData_t m_vrVulkanTexture = {};
+
+	#ifndef __linux__
+	/// Holds the OpenVR DirectX 12 Texture data for submitting to the compositor
+	vr::D3D12TextureData_t m_vrD3D12Texture = {};
+	#endif
 
 	/// Holds the Unity equivalent eye textures per stage (0:Left, 1: Right, Single Pass only uses left with texture array size of 2)
 	UnityXRRenderTextureId m_UnityTextures[k_nMaxNumStages][2];

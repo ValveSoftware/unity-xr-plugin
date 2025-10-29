@@ -251,6 +251,10 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_Start( UnityXRRendering
 		m_eActiveTextureType = vr::TextureType_DirectX;
 		break;
 
+	case kUnityGfxRendererD3D12:
+		m_eActiveTextureType = vr::TextureType_DirectX12;
+		break;
+
 	case kUnityGfxRendererVulkan:
 		m_eActiveTextureType = vr::TextureType_Vulkan;
 		break;
@@ -261,7 +265,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_Start( UnityXRRendering
 		break;
 
 	default:
-		XR_TRACE( "[OpenVR] [Error] Unsupported graphics api. Only DirectX, OpenGL and Vulkan are supported at this time." );
+		XR_TRACE( "[OpenVR] [Error] Unsupported graphics api. Only DirectX 11/12, OpenGL and Vulkan are supported at this time." );
 		return kUnitySubsystemErrorCodeFailure;
 		break;
 	}
@@ -459,7 +463,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_SubmitCurrentFrame()
 UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_BlitToMirrorViewRenderTarget( const UnityXRMirrorViewBlitInfo *mirrorBlitInfo )
 {
 	#ifndef __linux__
-	// Set RTV
+	// Set RTV for D3D11
 	if ( XR_WIN && m_eActiveTextureType == vr::TextureType_DirectX )
 	{
 		ID3D11RenderTargetView *pRTV = s_pProviderContext->interfaces->Get<IUnityGraphicsD3D11>()->RTVFromRenderBuffer( mirrorBlitInfo->mirrorRtDesc->rtNative );
@@ -471,6 +475,7 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::GfxThread_BlitToMirrorViewRenderT
 		const FLOAT clrColor[4] = { 0, 0, 0, 0 };
 		pImmediateContext->ClearRenderTargetView( pRTV, clrColor );
 	}
+	// D3D12 doesn't need special handling here - Unity handles the render target setup
 	#endif
 
 	return kUnitySubsystemErrorCodeSuccess;
@@ -748,15 +753,70 @@ bool OpenVRDisplayProvider::SubmitToCompositor( vr::EVREye eEye, int nStage )
 			return false;
 		}
 	}
+	#ifndef __linux__
+	else if ( m_eActiveTextureType == vr::TextureType_DirectX12 )
+	{
+		ID3D12Resource *pD3D12Resource = (ID3D12Resource * )GetNativeEyeTexture( nStage, nTexIndex );
+		if ( !pD3D12Resource )
+		{
+			XR_TRACE( "[OpenVR] [Error] Unable to get D3D12 resource for stage %i and eye %i\n", nStage, eEye );
+			return false;
+		}
+
+		IUnityGraphicsD3D12v5 *pD3D12v5 = s_pProviderContext->interfaces->Get<IUnityGraphicsD3D12v5>();
+		IUnityGraphicsD3D12v4 *pD3D12v4 = s_pProviderContext->interfaces->Get<IUnityGraphicsD3D12v4>();
+		IUnityGraphicsD3D12 *pD3D12 = s_pProviderContext->interfaces->Get<IUnityGraphicsD3D12>();
+
+		ID3D12CommandQueue *pCommandQueue = nullptr;
+		if ( pD3D12v5 )
+		{
+			pCommandQueue = pD3D12v5->GetCommandQueue();
+		}
+		else if ( pD3D12v4 )
+		{
+			pCommandQueue = pD3D12v4->GetCommandQueue();
+		}
+		else if ( pD3D12 )
+		{
+			pCommandQueue = pD3D12->GetCommandQueue();
+		}
+
+		if ( !pCommandQueue )
+		{
+			XR_TRACE( "[OpenVR] [Error] Unable to get D3D12 command queue for stage %i and eye %i\n", nStage, eEye );
+			return false;
+		}
+
+		m_vrD3D12Texture.m_pResource = pD3D12Resource;
+		m_vrD3D12Texture.m_pCommandQueue = pCommandQueue;
+		m_vrD3D12Texture.m_nNodeMask = 1; 
+
+		XR_TRACE( "[OpenVR] D3D12 Resource: %p, CommandQueue: %p for stage %i eye %i\n", 
+			pD3D12Resource, pCommandQueue, nStage, eEye );
+	}
+	#endif
 
 	// Grab the correct texture for this stage
 	vr::VRTextureWithDepth_t tex;
-	tex.handle = m_eActiveTextureType == vr::TextureType_Vulkan ? &m_vrVulkanTexture : GetNativeEyeTexture( nStage, nTexIndex );
+	if ( m_eActiveTextureType == vr::TextureType_Vulkan )
+	{
+		tex.handle = &m_vrVulkanTexture;
+	}
+	#ifndef __linux__
+	else if ( m_eActiveTextureType == vr::TextureType_DirectX12 )
+	{
+		tex.handle = &m_vrD3D12Texture;
+	}
+	#endif
+	else
+	{
+		tex.handle = GetNativeEyeTexture( nStage, nTexIndex );
+	}
 	tex.eType = m_eActiveTextureType;
 	tex.eColorSpace = vr::ColorSpace_Auto;
 
 	// Check if we have a valid depth buffer
-	if (m_pNativeDepthTextures[nStage][nTexIndex])
+	if ( m_pNativeDepthTextures[nStage][nTexIndex] )
 	{
 		tex.depth.handle = m_pNativeDepthTextures[nStage][nTexIndex];
 	}
@@ -767,12 +827,27 @@ bool OpenVRDisplayProvider::SubmitToCompositor( vr::EVREye eEye, int nStage )
 		vr::EVRSubmitFlags nFlags = m_eActiveTextureType == vr::TextureType_Vulkan ? vr::Submit_VulkanTextureWithArrayData : vr::Submit_Default;
 
 		// Submit the texture to the Compositor
-		vr::EVRCompositorError res = vr::VRCompositorError_None;
-		res = vr::VRCompositor()->Submit( eEye, &tex, &m_textureBounds, nFlags );
+		vr::EVRCompositorError res = vr::VRCompositor()->Submit( eEye, &tex, &m_textureBounds, nFlags );
 
 		if ( res != vr::VRCompositorError_None )
 		{
-			XR_TRACE( "[OpenVR] [Error] Unable to submit eye texture: [%i] [%x]\n", res, tex.handle );
+			const char *errorName = "Unknown";
+			switch ( res )
+			{
+				case vr::VRCompositorError_RequestFailed: errorName = "RequestFailed"; break;
+				case vr::VRCompositorError_IncompatibleVersion: errorName = "IncompatibleVersion"; break;
+				case vr::VRCompositorError_DoNotHaveFocus: errorName = "DoNotHaveFocus"; break;
+				case vr::VRCompositorError_InvalidTexture: errorName = "InvalidTexture"; break;
+				case vr::VRCompositorError_IsNotSceneApplication: errorName = "IsNotSceneApplication"; break;
+				case vr::VRCompositorError_TextureIsOnWrongDevice: errorName = "TextureIsOnWrongDevice"; break;
+				case vr::VRCompositorError_TextureUsesUnsupportedFormat: errorName = "TextureUsesUnsupportedFormat"; break;
+				case vr::VRCompositorError_SharedTexturesNotSupported: errorName = "SharedTexturesNotSupported"; break;
+				case vr::VRCompositorError_IndexOutOfRange: errorName = "IndexOutOfRange"; break;
+				case vr::VRCompositorError_AlreadySubmitted: errorName = "AlreadySubmitted"; break;
+				default: break;
+			}
+			XR_TRACE( "[OpenVR] [Error] Unable to submit eye %i texture for stage %i: [%i - %s] handle: %p, type: %i\n", 
+				eEye, nStage, res, errorName, tex.handle, tex.eType );
 			return false;
 		}
 	}
@@ -790,6 +865,7 @@ void OpenVRDisplayProvider::SetupRenderPass( const vr::EVREye eEye, const UnityX
 	int32_t nRenderPassesCount;
 	int32_t nRenderParamsCount;
 	int32_t nTextureArraySlice;
+	int32_t nTextureIndex;
 
 	if ( m_bUseSinglePass )
 	{
@@ -800,6 +876,7 @@ void OpenVRDisplayProvider::SetupRenderPass( const vr::EVREye eEye, const UnityX
 		nRenderPassesCount = 1;
 		nRenderParamsCount = 2;
 		nTextureArraySlice = eEye;
+		nTextureIndex = 0; 
 	}
 	else
 	{
@@ -810,6 +887,7 @@ void OpenVRDisplayProvider::SetupRenderPass( const vr::EVREye eEye, const UnityX
 		nRenderPassesCount = 2;
 		nRenderParamsCount = 1;
 		nTextureArraySlice = 0;
+		nTextureIndex = eEye;
 	}
 
 	// Set the number of render passes for this frame
@@ -817,7 +895,7 @@ void OpenVRDisplayProvider::SetupRenderPass( const vr::EVREye eEye, const UnityX
 
 	// Setup base render pass properties
 	UnityXRNextFrameDesc::UnityXRRenderPass &renderPass = pTargetFrame->renderPasses[nRenderPasses];
-	renderPass.textureId = m_UnityTextures[m_nCurFrame % m_nNumStages][nRenderPasses];
+	renderPass.textureId = m_UnityTextures[m_nCurFrame % m_nNumStages][nTextureIndex];
 	renderPass.renderParamsCount = nRenderParamsCount;
 	renderPass.cullingPassIndex = nRenderPasses;
 
@@ -1089,10 +1167,19 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::CreateEyeTextures( const UnityXRF
 	eyeWidth = (uint32_t )eyeWidthScaled;
 	eyeHeight = (uint32_t )eyeHeightScaled;
 
+	bool bUseTextureArrays = m_bUseSinglePass;
+
+	if ( m_bUseSinglePass )
+	{
+		XR_TRACE( "[OpenVR] Single-Pass mode: Creating texture array with 2 slices\n" );
+	}
+
 	// Create textures
 	for ( int stage = 0; stage < m_nNumStages; ++stage )
 	{
-		for ( int eye = 0; eye < nNumTextures; ++eye )
+		int nTextureCount = bUseTextureArrays ? 1 : nNumTextures;
+
+		for ( int eye = 0; eye < nTextureCount; ++eye )
 		{
 			UnityXRRenderTextureDesc unityDesc;
 			memset( &unityDesc, 0, sizeof( UnityXRRenderTextureDesc ) );
@@ -1108,10 +1195,21 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::CreateEyeTextures( const UnityXRF
 				unityDesc.flags |= kUnityXRRenderTextureFlagsSRGB;
 			}
 
-			if ( m_bUseSinglePass )
+			if ( bUseTextureArrays )
 			{
 				unityDesc.textureArrayLength = 2;
 			}
+
+			// Log texture creation details
+			const char *apiName = "Unknown";
+			if ( m_eActiveTextureType == vr::TextureType_DirectX ) apiName = "D3D11";
+			else if ( m_eActiveTextureType == vr::TextureType_DirectX12 ) apiName = "D3D12";
+			else if ( m_eActiveTextureType == vr::TextureType_Vulkan ) apiName = "Vulkan";
+			else if ( m_eActiveTextureType == vr::TextureType_OpenGL ) apiName = "OpenGL";
+
+			XR_TRACE( "[OpenVR] Creating %s texture (stage %i, eye %i): %ux%u, arrayLen: %u, sRGB: %i, depth: %i\n",
+				apiName, stage, eye, eyeWidth, eyeHeight, unityDesc.textureArrayLength, 
+				(unityDesc.flags & kUnityXRRenderTextureFlagsSRGB) ? 1 : 0, unityDesc.depthFormat );
 
 			// Create an UnityXRRenderTextureId for the native texture so we can tell unity to render to it later.
 			UnityXRRenderTextureId unityTexId;
@@ -1122,9 +1220,23 @@ UnitySubsystemErrorCode OpenVRDisplayProvider::CreateEyeTextures( const UnityXRF
 				return res;
 			}
 
-			m_UnityTextures[stage][eye] = unityTexId;
-			m_pNativeColorTextures[stage][eye] = nullptr;    // this is just registering a creation request, we'll grab the native textures later
-			m_pNativeDepthTextures[stage][eye] = nullptr;
+			if ( bUseTextureArrays )
+			{
+				// Single-pass: one texture array for both eyes
+				m_UnityTextures[stage][0] = unityTexId;
+				m_UnityTextures[stage][1] = unityTexId; 
+				m_pNativeColorTextures[stage][0] = nullptr;
+				m_pNativeColorTextures[stage][1] = nullptr;
+				m_pNativeDepthTextures[stage][0] = nullptr;
+				m_pNativeDepthTextures[stage][1] = nullptr;
+			}
+			else
+			{
+				// Multi-pass: separate texture per eye
+				m_UnityTextures[stage][eye] = unityTexId;
+				m_pNativeColorTextures[stage][eye] = nullptr;
+				m_pNativeDepthTextures[stage][eye] = nullptr;
+			}
 		}
 	}
 
@@ -1162,15 +1274,28 @@ void *OpenVRDisplayProvider::GetNativeEyeTexture( int stage, int eye )
 		UnitySubsystemErrorCode res = s_pXRDisplay->QueryTextureDesc( s_DisplayHandle, unityTexId, &unityDesc );
 		if ( res != kUnitySubsystemErrorCodeSuccess )
 		{
-			XR_TRACE( "[OpenVR] Error querying texture: [%i]\n", res );
+			XR_TRACE( "[OpenVR] Error querying texture for stage %i eye %i: [%i]\n", stage, eye, res );
 			return nullptr;
 		}
 
 		m_pNativeColorTextures[stage][eye] = unityDesc.color.nativePtr;
-		XR_TRACE( "[OpenVR] Created Native Color: %x\n", unityDesc.color.nativePtr );
-
 		m_pNativeDepthTextures[stage][eye] = unityDesc.depth.nativePtr;
-		XR_TRACE( "[OpenVR] Created Native Depth: %x\n", unityDesc.depth.nativePtr );
+
+		// Log texture information with API type
+		const char *apiName = "Unknown";
+		if ( m_eActiveTextureType == vr::TextureType_DirectX ) apiName = "D3D11";
+		else if ( m_eActiveTextureType == vr::TextureType_DirectX12 ) apiName = "D3D12";
+		else if ( m_eActiveTextureType == vr::TextureType_Vulkan ) apiName = "Vulkan";
+		else if ( m_eActiveTextureType == vr::TextureType_OpenGL ) apiName = "OpenGL";
+
+		XR_TRACE( "[OpenVR] %s Native Color Texture (stage %i, eye %i): %p (width: %u, height: %u, arrayLen: %u)\n", 
+			apiName, stage, eye, unityDesc.color.nativePtr, unityDesc.width, unityDesc.height, unityDesc.textureArrayLength );
+		
+		if ( unityDesc.depth.nativePtr )
+		{
+			XR_TRACE( "[OpenVR] %s Native Depth Texture (stage %i, eye %i): %p\n", 
+				apiName, stage, eye, unityDesc.depth.nativePtr );
+		}
 	}
 
 	return m_pNativeColorTextures[stage][eye];
@@ -1212,25 +1337,28 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 		}
 	}
 
-	ID3D11Device *m_pD3D11Device;
+	ID3D11Device *m_pD3D11Device = nullptr;
 	if ( m_eActiveTextureType == vr::TextureType_DirectX )
 	{
-		// Grab the active render device
+		// Grab the active render device for D3D11
 		m_pD3D11Device = s_pProviderContext->interfaces->Get< IUnityGraphicsD3D11 >()->GetDevice();
 
 		// Create a native device handle for OpenVR
 		m_nativeDevice.eType = vr::DeviceType_DirectX11;
 		m_nativeDevice.handle = m_pD3D11Device;
 	}
+	else if ( m_eActiveTextureType == vr::TextureType_DirectX12 )
+	{
+		// OpenVR overlay mirror only supports DirectX11 (no DeviceType_DirectX12 in API as of 2025)
+		// D3D12 will fall back to standard left/right eye mirror mode
+		m_nativeDevice.handle = nullptr;
+		m_pD3D11Device = nullptr;
+	}
 	else
 	{
 		m_nativeDevice.handle = nullptr;
 		m_pD3D11Device = nullptr;
 	}
-	
-	// Create a native device handle for OpenVR
-	m_nativeDevice.eType = vr::DeviceType_DirectX11;
-	m_nativeDevice.handle = m_pD3D11Device;
 
 	// Get the active overlay view - should be our scene application now at this stage
 	if ( m_nMirrorMode == kUnityXRMirrorBlitDistort && !m_bOverlayFallback && m_hOverlay != k_ulInvalidOverlayHandle && m_bIsUsingRGB && !m_bIsUsingCustomMirrorMode && vr::VRSystem() && vr::VROverlayView() )
@@ -1342,6 +1470,11 @@ void OpenVRDisplayProvider::SetupOverlayMirror()
 			// TODO: Request Unity to have XRMirrorBlitDesc to support custom sRGB setting despite project setting
 			m_bOverlayFallback = true;
 			XR_TRACE( "[OpenVR] [Error] [Mirror] OpenVR View falling back to left eye texture. Project not using sRGB.\n" );
+		}
+		else if ( m_eActiveTextureType == vr::TextureType_DirectX12 )
+		{
+			m_bOverlayFallback = true;
+			XR_TRACE( "[OpenVR] [Mirror] OpenVR View falling back to left eye texture. DirectX 12 uses standard mirror mode.\n" );
 		}
 		else if ( m_eActiveTextureType != vr::TextureType_DirectX )
 		{
